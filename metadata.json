@@ -1,0 +1,6 @@
+{
+  "name": "Codefest Studio - Technology Solutions & Enterprise Software",
+  "description": "Codefest Studio provides customised technology solutions and ready-to-deploy enterprise products including Warehouse Management, Transport Management, Gate & Yard Management, Vendor Management, Hotel ERP and Inventory Management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

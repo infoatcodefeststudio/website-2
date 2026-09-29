@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codefest Studio | Technology Solutions & Enterprise Software Products</title>
+    <meta name="description" content="Codefest Studio provides customised technology solutions and ready-to-deploy enterprise products including Warehouse Management, Transport Management, Gate & Yard Management, Vendor Management, Hotel ERP and Inventory Management." />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://codefeststudio.com/" />
+    <meta property="og:title" content="Codefest Studio | Technology Solutions & Enterprise Software Products" />
+    <meta property="og:description" content="Technology Solutions. Product Management. Business Transformation. Ready-to-deploy enterprise products and custom software solutions." />
+    <meta property="og:image" content="https://picsum.photos/1200/630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Codefest Studio | Technology Solutions & Enterprise Software Products" />
+    <meta name="twitter:description" content="Technology Solutions. Product Management. Business Transformation. Ready-to-deploy enterprise products and custom software solutions." />
+    <meta name="twitter:image" content="https://picsum.photos/1200/630" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Prevent Theme FOUC -->
+    <script>
+      (function() {
+        try {
+          var savedTheme = localStorage.getItem('codefest_studio_theme');
+          var isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Structured Data JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Codefest Studio",
+      "url": "https://codefeststudio.com",
+      "logo": "https://codefeststudio.com/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "info@coldfeststudio.com",
+        "contactType": "customer service"
+      },
+      "sameAs": [],
+      "description": "Codefest Studio builds powerful technology products and customised digital solutions that help businesses automate operations, improve visibility and scale efficiently."
+    }
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-indigo-500 selection:text-white min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
