@@ -9,7 +9,7 @@ interface WiproBrandMarkProps {
 /**
  * WiproBrandMark
  * Inspired by Wipro's signature multi-colored concentric connecting dots motif
- * representing connection, fluid innovation, and "Ambitions Realized".
+ * representing connection, fluid innovation, and enterprise technology.
  */
 export function WiproBrandMark({ size = 'md', className = '', animate = false }: WiproBrandMarkProps) {
   const sizeMap = {

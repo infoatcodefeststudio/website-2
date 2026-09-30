@@ -9,11 +9,8 @@ import { WhyCodefest } from '../components/WhyCodefest';
 import { ProductComparison } from '../components/ProductComparison';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
 import { FadeIn, StaggerContainer, StaggerItem } from '../components/animations/MotionSection';
-import { WmsDashboardMockup } from '../components/dashboards/WmsDashboardMockup';
-import { TmsDashboardMockup } from '../components/dashboards/TmsDashboardMockup';
-import { HotelErpDashboardMockup } from '../components/dashboards/HotelErpDashboardMockup';
-import { ProductAnimatedClipPlayer } from '../components/clips/ProductAnimatedClipPlayer';
-import { AnimatedClipModal } from '../components/clips/AnimatedClipModal';
+import { OperationalScreenshotView } from '../components/OperationalScreenshotView';
+import { GMS_OPERATIONAL_VIEW, TMS_OPERATIONAL_VIEW, WMS_OPERATIONAL_VIEW } from '../data/operationalScreenshots';
 import { Testimonials } from '../components/Testimonials';
 import { WiproDotCluster } from '../components/WiproBrandMark';
 import { 
@@ -24,17 +21,13 @@ import {
   TrendingUp, 
   HelpCircle,
   ChevronDown,
-  Workflow,
-  Play,
-  Film
+  Workflow
 } from 'lucide-react';
 
 export function HomePage() {
   const { navigate, openDemoModal } = useNavigation();
-  const [heroMockupTab, setHeroMockupTab] = useState<'wms' | 'tms' | 'hotel'>('wms');
+  const [heroMockupTab, setHeroMockupTab] = useState<'wms' | 'tms' | 'gms'>('wms');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [heroClipModalOpen, setHeroClipModalOpen] = useState(false);
-
   const homeFaqs = [
     {
       question: 'Can Codefest Studio platforms be customized for our specific business workflows?',
@@ -83,8 +76,8 @@ export function HomePage() {
               {/* Wipro Connecting Dots Brand Kicker */}
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-100 dark:bg-[#0b1c36] rounded-full border border-slate-200 dark:border-slate-700">
                 <WiproDotCluster />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#053674] dark:text-[#389BB5]">
-                  Ambitions Realized • Digital Transformation
+                <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#053674] dark:text-[#389BB5]">
+                  Enterprise Tech
                 </span>
               </div>
 
@@ -119,15 +112,6 @@ export function HomePage() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setHeroClipModalOpen(true)}
-                  className="btn-secondary w-full sm:w-auto"
-                >
-                  <Play className="w-4 h-4 fill-[#389BB5] text-[#389BB5]" />
-                  <span>Interactive Simulation</span>
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   onClick={() => openDemoModal()}
                   className="btn-ghost w-full sm:w-auto"
                 >
@@ -158,7 +142,7 @@ export function HomePage() {
                 {([
                   ['wms', 'WMS Platform'],
                   ['tms', 'TMS Telematics'],
-                  ['hotel', 'Hotel PMS Flow'],
+                  ['gms', 'Gate & Yard (GMS)'],
                 ] as const).map(([tab, label]) => (
                   <button
                     key={tab}
@@ -184,25 +168,40 @@ export function HomePage() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
                   >
-                    {heroMockupTab === 'wms' && <WmsDashboardMockup />}
-                    {heroMockupTab === 'tms' && <TmsDashboardMockup />}
-                    {heroMockupTab === 'hotel' && <HotelErpDashboardMockup />}
+                    {heroMockupTab === 'wms' && <OperationalScreenshotView config={WMS_OPERATIONAL_VIEW} />}
+                    {heroMockupTab === 'tms' && <OperationalScreenshotView config={TMS_OPERATIONAL_VIEW} />}
+                    {heroMockupTab === 'gms' && <OperationalScreenshotView config={GMS_OPERATIONAL_VIEW} />}
                   </motion.div>
                 </AnimatePresence>
 
                 {/* Floating Metric Callout */}
-                <motion.div 
+                <motion.div
+                  key={heroMockupTab}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
-                  className="hidden sm:flex absolute bottom-4 left-4 z-20 bg-white dark:bg-[#0b1c36] p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-300/50 dark:shadow-black/60 items-center gap-3"
+                  className="hidden sm:flex absolute bottom-4 left-4 z-20 max-w-[240px] items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xl shadow-slate-300/50 dark:border-slate-700 dark:bg-[#0b1c36] dark:shadow-black/60"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#071326] text-[#053674] dark:text-[#389BB5] flex items-center justify-center font-bold">
-                    <TrendingUp className="w-5 h-5 text-[#053674] dark:text-[#389BB5]" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#071326]">
+                    <TrendingUp className="h-5 w-5 text-[#053674] dark:text-[#389BB5]" />
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-[#071326] dark:text-white">99.94% Dispatch Accuracy</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">Autonomous Barcode & IoT Telemetry</div>
+                  <div className="min-w-0">
+                    {heroMockupTab === 'tms' ? (
+                      <>
+                        <div className="text-xs font-bold text-[#071326] dark:text-white">Live fleet & trip health</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">GPS map, bookings, and ops overview</div>
+                      </>
+                    ) : heroMockupTab === 'wms' ? (
+                      <>
+                        <div className="text-xs font-bold text-[#071326] dark:text-white">Real-time inventory control</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">Dashboards, KPIs, and floor monitoring</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-xs font-bold text-[#071326] dark:text-white">Gate, dock & yard visibility</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">Live yard map, docks, and analytics</div>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               </div>
@@ -277,36 +276,6 @@ export function HomePage() {
               <CalendarCheck className="w-4 h-4 text-[#FFC412]" />
               <span>Schedule an Enterprise Architectural Walkthrough</span>
             </motion.button>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 3.5. SIMULATION THEATER */}
-      {/* ========================================================================= */}
-      <section className="py-20 lg:py-28 bg-[#071326] text-white relative overflow-hidden">
-        {/* Top Multi-Color Accent Line */}
-        <div className="absolute top-0 left-0 right-0 h-1 wipro-multi-gradient" />
-
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#053674]/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#389BB5]/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <FadeIn direction="up" className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#053674]/60 border border-[#389BB5]/40 rounded-full text-xs font-bold uppercase tracking-wider text-[#389BB5] mb-3">
-              <Film className="w-3.5 h-3.5" />
-              <span>Interactive Workflow Theater</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Simulate Operational Workflows in Real Time
-            </h2>
-            <p className="text-base text-slate-300 mt-3 leading-relaxed">
-              Experience how our autonomous workflows execute barcoding, dispatch routing, gate security, and PMS check-in to check-out cycles.
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.1}>
-            <ProductAnimatedClipPlayer initialProductId="wms" showProductTabs={true} />
           </FadeIn>
         </div>
       </section>
@@ -505,13 +474,6 @@ export function HomePage() {
       {/* 10. GLOBAL CTA BANNER */}
       {/* ========================================================================= */}
       <GlobalCtaSection />
-
-      {/* Hero Animated Clip Modal */}
-      <AnimatedClipModal
-        isOpen={heroClipModalOpen}
-        onClose={() => setHeroClipModalOpen(false)}
-        productId="wms"
-      />
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { Product, PRODUCTS } from '../data/products';
 import { useNavigation } from '../context/NavigationContext';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
-import { AnimatedDemo } from '../components/AnimatedDemo';
 import { FadeIn, StaggerContainer, StaggerItem } from '../components/animations/MotionSection';
 import { WmsDashboardMockup } from '../components/dashboards/WmsDashboardMockup';
 import { TmsDashboardMockup } from '../components/dashboards/TmsDashboardMockup';
@@ -12,8 +11,6 @@ import { YardDashboardMockup } from '../components/dashboards/YardDashboardMocku
 import { VmsDashboardMockup } from '../components/dashboards/VmsDashboardMockup';
 import { HotelErpDashboardMockup } from '../components/dashboards/HotelErpDashboardMockup';
 import { InventoryDashboardMockup } from '../components/dashboards/InventoryDashboardMockup';
-import { ProductAnimatedClipPlayer } from '../components/clips/ProductAnimatedClipPlayer';
-import { AnimatedClipModal } from '../components/clips/AnimatedClipModal';
 import { ProductDetailSkeleton } from '../components/skeletons/ProductDetailSkeleton';
 import { WiproDotCluster } from '../components/WiproBrandMark';
 import { 
@@ -21,11 +18,7 @@ import {
   CalendarCheck, 
   ChevronDown, 
   Sparkles, 
-  HelpCircle,
-  Play,
-  Film,
-  Monitor,
-  Zap
+  HelpCircle
 } from 'lucide-react';
 
 interface ProductDetailPageProps {
@@ -36,8 +29,6 @@ interface ProductDetailPageProps {
 export function ProductDetailPage({ product, isLoading: externalLoading }: ProductDetailPageProps) {
   const { openDemoModal } = useNavigation();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [heroViewMode, setHeroViewMode] = useState<'clip' | 'mockup'>('clip');
-  const [clipModalOpen, setClipModalOpen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(true);
 
   // Transition skeleton on product switch for smooth perceived performance
@@ -117,15 +108,6 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
                   <span>{product.ctaText}</span>
                 </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setClipModalOpen(true)}
-                  className="bg-[#071326] dark:bg-[#0b1c36] hover:bg-slate-800 dark:hover:bg-[#122b52] text-white font-bold px-5 py-3.5 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer border border-transparent dark:border-slate-700"
-                >
-                  <Play className="w-4 h-4 fill-[#389BB5] text-[#389BB5]" />
-                  <span>Watch Simulation</span>
-                </motion.button>
               </div>
 
               {/* Stats Strip */}
@@ -145,73 +127,13 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
               </div>
             </motion.div>
 
-            {/* Right Interactive Mockup / Animated Clip */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="lg:col-span-7 relative"
+              className="lg:col-span-7 relative z-10"
             >
-              {/* Toggle Ribbon */}
-              <div className="flex items-center justify-between mb-3 bg-slate-100 dark:bg-[#0b1c36] p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setHeroViewMode('clip')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      heroViewMode === 'clip' 
-                        ? 'bg-[#071326] text-white shadow-sm' 
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Film className="w-3.5 h-3.5 text-[#389BB5]" />
-                    <span>Autonomous Simulation</span>
-                  </button>
-                  <button
-                    onClick={() => setHeroViewMode('mockup')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      heroViewMode === 'mockup' 
-                        ? 'bg-[#053674] text-white shadow-sm' 
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <Monitor className="w-3.5 h-3.5" />
-                    <span>Interactive Console</span>
-                  </button>
-                </div>
-
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono hidden sm:inline pr-2">
-                  {heroViewMode === 'clip' ? 'Live Flow Execution' : 'Clickable UI Mode'}
-                </span>
-              </div>
-
-              <div className="relative z-10">
-                <AnimatePresence mode="wait">
-                  {heroViewMode === 'clip' ? (
-                    <motion.div
-                      key="animated-clip-view"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ProductAnimatedClipPlayer 
-                        initialProductId={product.slug} 
-                        showProductTabs={false} 
-                      />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="interactive-mockup-view"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {renderDashboardMockup()}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {renderDashboardMockup()}
             </motion.div>
           </div>
         </div>
@@ -233,33 +155,6 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
             <p className="text-base text-slate-600 dark:text-slate-300 mt-4 leading-relaxed max-w-3xl mx-auto">
               {product.longDescription || product.shortDescription}
             </p>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 2.5. HOW IT WORKS - INTERACTIVE ANIMATED DEMO SECTION */}
-      {/* ========================================================================= */}
-      <section id="how-it-works-section" className="py-20 lg:py-28 bg-[#071326] text-white relative overflow-hidden">
-        {/* Top Multi-Color Stripe */}
-        <div className="absolute top-0 left-0 right-0 h-1 wipro-multi-gradient" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <FadeIn direction="up" className="text-center max-w-3xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#053674] border border-[#389BB5]/40 rounded-full text-xs font-bold uppercase tracking-wider text-[#389BB5] mb-3">
-              <Zap className="w-3.5 h-3.5 text-[#FFC412]" />
-              <span>Operational Flow Pipeline</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Experience the Lifecycle Architecture in Motion
-            </h2>
-            <p className="text-base text-slate-300 mt-3 leading-relaxed">
-              Step through each critical operational phase of {product.name} with real-time telemetry metrics and telemetry indicators.
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.1}>
-            <AnimatedDemo product={product} />
           </FadeIn>
         </div>
       </section>
@@ -429,13 +324,6 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
       {/* 7. GLOBAL CTA */}
       {/* ========================================================================= */}
       <GlobalCtaSection />
-
-      {/* Standalone Fullscreen Clip Modal */}
-      <AnimatedClipModal
-        isOpen={clipModalOpen}
-        onClose={() => setClipModalOpen(false)}
-        productId={product.slug}
-      />
     </div>
   );
 }

@@ -30,7 +30,7 @@ export function GlobalCtaSection() {
             {/* Wipro Brand Indicator */}
             <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#053674]/60 border border-[#389BB5]/40 text-[#389BB5] text-xs font-bold tracking-wide">
               <WiproDotCluster />
-              <span>AMBITIONS REALIZED • DIGITAL EXCELLENCE</span>
+              <span>ENTERPRISE TECH</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white max-w-3xl mx-auto leading-tight">

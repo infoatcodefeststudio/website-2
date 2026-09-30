@@ -1,33 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
 import { useNavigation, PageRoute } from '../context/NavigationContext';
 import { useTheme } from '../context/ThemeContext';
 import { PRODUCTS } from '../data/products';
 import { WiproBrandMark, WiproDotCluster } from './WiproBrandMark';
-import { 
-  ChevronDown, 
-  Menu, 
-  X, 
-  Warehouse, 
-  Truck, 
-  ShieldCheck, 
-  Users, 
-  Hotel, 
-  Boxes, 
-  ArrowRight, 
-  CalendarCheck, 
-  Sun, 
+import {
+  ChevronDown,
+  Menu,
+  X,
+  Warehouse,
+  Truck,
+  ShieldCheck,
+  Users,
+  Hotel,
+  Boxes,
+  ArrowRight,
+  CalendarCheck,
+  Sun,
   Moon,
-  Sparkles
 } from 'lucide-react';
+
+const PRIMARY_LINKS: { page: PageRoute; short: string; full: string }[] = [
+  { page: 'home', short: 'Home', full: 'Home' },
+  { page: 'solutions', short: 'Solutions', full: 'Industry Solutions' },
+  { page: 'custom-technology', short: 'Consulting', full: 'Consulting & Dev' },
+  { page: 'about', short: 'About', full: 'About Us' },
+  { page: 'contact', short: 'Contact', full: 'Contact' },
+];
 
 export function Navbar() {
   const { currentPage, navigate, openDemoModal } = useNavigation();
-  const { theme, isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [productsDropdownOpen, setProductsDropdownOpen] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [mobileProductsOpen, setMobileProductsOpen] = useState<boolean>(false);
+  const productsMenuRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -37,26 +45,44 @@ export function Navbar() {
   });
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!productsDropdownOpen && !mobileMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setProductsDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [productsDropdownOpen, mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!productsDropdownOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!productsMenuRef.current?.contains(event.target as Node)) {
+        setProductsDropdownOpen(false);
+      }
+    };
+    window.addEventListener('pointerdown', onPointerDown);
+    return () => window.removeEventListener('pointerdown', onPointerDown);
+  }, [productsDropdownOpen]);
+
   const getProductIcon = (iconName: string) => {
     switch (iconName) {
-      case 'Warehouse': return <Warehouse className="w-4 h-4 text-[#053674] dark:text-[#389BB5]" />;
-      case 'Truck': return <Truck className="w-4 h-4 text-[#389BB5] dark:text-[#389BB5]" />;
-      case 'ShieldCheck': return <ShieldCheck className="w-4 h-4 text-[#A4CE4F]" />;
-      case 'Users': return <Users className="w-4 h-4 text-[#B4156E]" />;
-      case 'Hotel': return <Hotel className="w-4 h-4 text-[#FFC412]" />;
-      case 'Boxes': return <Boxes className="w-4 h-4 text-[#301157] dark:text-[#A4CE4F]" />;
-      default: return <Boxes className="w-4 h-4 text-[#053674] dark:text-[#389BB5]" />;
+      case 'Warehouse': return <Warehouse className="w-4 h-4 text-wipro-navy dark:text-wipro-cyan" />;
+      case 'Truck': return <Truck className="w-4 h-4 text-wipro-cyan" />;
+      case 'ShieldCheck': return <ShieldCheck className="w-4 h-4 text-wipro-green" />;
+      case 'Users': return <Users className="w-4 h-4 text-wipro-pink" />;
+      case 'Hotel': return <Hotel className="w-4 h-4 text-wipro-yellow" />;
+      case 'Boxes': return <Boxes className="w-4 h-4 text-wipro-purple dark:text-wipro-green" />;
+      default: return <Boxes className="w-4 h-4 text-wipro-navy dark:text-wipro-cyan" />;
     }
   };
 
@@ -74,395 +100,314 @@ export function Navbar() {
 
   const isProductPage = ['wms', 'tms', 'gate-yard-management', 'vendor-management', 'hotel-erp', 'inventory-management'].includes(currentPage);
 
+  const desktopLinkClass = (active: boolean) =>
+    `inline-flex h-9 items-center rounded-full px-3 text-[13px] font-semibold leading-none tracking-tight transition-colors ${
+      active
+        ? isDark
+          ? 'bg-white/10 text-white'
+          : 'bg-white text-wipro-navy shadow-sm'
+        : isDark
+          ? 'text-slate-300 hover:bg-white/5 hover:text-white'
+          : 'text-slate-600 hover:bg-white/70 hover:text-wipro-navy'
+    }`;
+
+  const mobileLinkClass = (active: boolean) =>
+    `flex h-11 w-full items-center rounded-xl px-3 text-left text-sm font-semibold ${
+      active
+        ? isDark
+          ? 'bg-wipro-surface-dark text-wipro-cyan'
+          : 'bg-slate-100 text-wipro-navy'
+        : isDark
+          ? 'text-slate-200 hover:bg-white/5'
+          : 'text-slate-700 hover:bg-slate-50'
+    }`;
+
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+    <header className={`sticky top-0 z-50 overflow-visible border-b transition-colors duration-300 ${
       isDark
         ? isScrolled
-          ? 'bg-[#071326]/95 backdrop-blur-xl border-b border-slate-800 shadow-lg shadow-black/40 py-3'
-          : 'bg-[#071326]/90 backdrop-blur-lg border-b border-slate-800/80 py-4'
+          ? 'border-slate-800 bg-wipro-dark/95 shadow-lg shadow-black/30 backdrop-blur-xl'
+          : 'border-slate-800/80 bg-wipro-dark/90 backdrop-blur-lg'
         : isScrolled
-          ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-sm shadow-[#053674]/5 py-3'
-          : 'bg-white/90 backdrop-blur-lg border-b border-slate-200/60 py-4'
+          ? 'border-slate-200/90 bg-white/95 shadow-sm shadow-wipro-navy/5 backdrop-blur-xl'
+          : 'border-slate-200/70 bg-white/92 backdrop-blur-lg'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          {/* Brand Logo - Wipro-inspired Connecting Dots Mark */}
-          <button 
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:gap-4 lg:px-8">
+        <button
+          type="button"
+          onClick={() => handleNavClick('home')}
+          className="focus-ring flex h-11 shrink-0 items-center gap-2.5 rounded-xl text-left"
+        >
+          <span className={`grid size-10 shrink-0 place-items-center rounded-xl border ${
+            isDark ? 'border-slate-700/80 bg-wipro-surface-dark' : 'border-slate-200 bg-white'
+          }`}>
+            <WiproBrandMark size="md" animate={isScrolled} />
+          </span>
+          <span className="flex h-10 flex-col justify-center gap-1">
+            <span className={`text-[15px] font-bold leading-none tracking-tight ${
+              isDark ? 'text-white' : 'text-wipro-dark'
+            }`}>
+              Codefest <span className={isDark ? 'text-wipro-cyan' : 'text-wipro-navy'}>Studio</span>
+            </span>
+            <span className={`text-[10px] font-semibold uppercase leading-none tracking-[0.16em] ${
+              isDark ? 'text-wipro-cyan' : 'text-wipro-navy'
+            }`}>
+              Enterprise Tech
+            </span>
+          </span>
+        </button>
+
+        <nav
+          aria-label="Primary"
+          className={`hidden items-center gap-0.5 overflow-visible rounded-full border p-1 lg:flex ${
+            isDark
+              ? 'border-slate-700/80 bg-wipro-surface-dark/80'
+              : 'border-slate-200/90 bg-slate-100/80'
+          }`}
+        >
+          <button
+            type="button"
             onClick={() => handleNavClick('home')}
-            className="focus-ring flex items-center gap-3 group text-left cursor-pointer rounded-xl"
+            aria-current={currentPage === 'home' ? 'page' : undefined}
+            className={desktopLinkClass(currentPage === 'home')}
           >
-            <motion.div 
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              className={`relative p-1 rounded-xl shadow-sm border flex items-center justify-center transition-colors ${
-                isDark 
-                  ? 'bg-[#0b1c36] border-slate-700/80' 
-                  : 'bg-white border-slate-100'
-              }`}
-            >
-              <WiproBrandMark size="md" animate={isScrolled} />
-            </motion.div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className={`text-xl font-extrabold tracking-tight transition-colors ${
-                  isDark ? 'text-white' : 'text-[#071326]'
-                }`}>
-                  Codefest <span className={isDark ? 'text-[#389BB5]' : 'text-[#053674]'}>Studio</span>
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 -mt-0.5">
-                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">
-                  Ambitions Realized
-                </span>
-                <span className="w-1 h-1 rounded-full bg-[#B4156E]" />
-                <span className={`text-[9px] uppercase tracking-wider font-semibold ${
-                  isDark ? 'text-[#389BB5]' : 'text-[#053674]'
-                }`}>
-                  Enterprise Tech
-                </span>
-              </div>
-            </div>
+            Home
           </button>
 
-          {/* Desktop Navigation Links */}
-          <nav className={`hidden lg:flex items-center gap-1 xl:gap-2 text-sm font-medium transition-colors ${
-            isDark ? 'text-slate-300' : 'text-slate-700'
-          }`}>
+          <div
+            ref={productsMenuRef}
+            className="relative"
+            onMouseEnter={() => setProductsDropdownOpen(true)}
+            onMouseLeave={() => setProductsDropdownOpen(false)}
+          >
             <button
-              onClick={() => handleNavClick('home')}
-              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-semibold ${
-                currentPage === 'home' 
-                  ? isDark
-                    ? 'text-white bg-[#0b1c36] font-bold border-b-2 border-[#389BB5]'
-                    : 'text-[#053674] bg-slate-100 font-bold border-b-2 border-[#053674]'
-                  : isDark
-                    ? 'hover:text-white hover:bg-[#0b1c36]/60'
-                    : 'hover:text-[#053674] hover:bg-slate-50'
-              }`}
+              type="button"
+              aria-expanded={productsDropdownOpen}
+              aria-haspopup="true"
+              aria-controls="products-mega-menu"
+              onClick={() => setProductsDropdownOpen((open) => !open)}
+              className={desktopLinkClass(isProductPage)}
             >
-              Home
+              <span className="xl:hidden">Products</span>
+              <span className="hidden xl:inline">Products & Platforms</span>
+              <ChevronDown
+                aria-hidden="true"
+                className={`ml-1 h-3.5 w-3.5 transition-transform duration-200 ${
+                  productsDropdownOpen ? 'rotate-180' : ''
+                }`}
+              />
             </button>
 
-            {/* Products Dropdown */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setProductsDropdownOpen(true)}
-              onMouseLeave={() => setProductsDropdownOpen(false)}
-            >
-              <button
-                className={`px-3 py-2 rounded-lg transition-colors flex items-center gap-1 cursor-pointer text-sm font-semibold ${
-                  isProductPage 
-                    ? isDark
-                      ? 'text-white bg-[#0b1c36] font-bold border-b-2 border-[#389BB5]'
-                      : 'text-[#053674] bg-slate-100 font-bold border-b-2 border-[#053674]'
-                    : isDark
-                      ? 'hover:text-white hover:bg-[#0b1c36]/60'
-                      : 'hover:text-[#053674] hover:bg-slate-50'
-                }`}
-              >
-                <span>Products & Platforms</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                  productsDropdownOpen ? 'rotate-180 ' + (isDark ? 'text-[#389BB5]' : 'text-[#053674]') : ''
-                }`} />
-              </button>
+            <AnimatePresence>
+              {productsDropdownOpen && (
+                <motion.div
+                  id="products-mega-menu"
+                  role="menu"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-1/2 top-full z-[60] w-[min(36rem,calc(100vw-2rem))] -translate-x-1/2 pt-2"
+                >
+                  <div className={`overflow-hidden rounded-2xl border p-3 shadow-2xl ${
+                    isDark
+                      ? 'border-slate-700 bg-wipro-surface-dark shadow-black/70'
+                      : 'border-slate-200 bg-white shadow-wipro-dark/10'
+                  }`}>
+                    <div className="-mx-3 -mt-3 mb-3 h-1 wipro-multi-gradient" />
 
-              {/* Dropdown Menu */}
-              <AnimatePresence>
-                {productsDropdownOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    className={`absolute top-full left-0 w-[600px] rounded-2xl border shadow-2xl p-4 grid grid-cols-2 gap-2 z-50 overflow-hidden ${
-                      isDark 
-                        ? 'bg-[#0b1c36] border-slate-700 shadow-black/70' 
-                        : 'bg-white border-slate-200 shadow-[#071326]/10'
-                    }`}
-                  >
-                    {/* Top Multi-Color Brand Line */}
-                    <div className="col-span-2 -mx-4 -mt-4 mb-2 h-1 wipro-multi-gradient" />
-
-                    <div className="col-span-2 px-3 py-1 flex items-center justify-between mb-1">
+                    <div className="mb-2 flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
                         <WiproDotCluster />
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                           Enterprise Ready Platforms
                         </span>
                       </div>
-                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                        isDark 
-                          ? 'bg-[#071326] text-[#389BB5] border-slate-700' 
-                          : 'bg-slate-100 text-[#053674] border-slate-200'
+                      <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
+                        isDark
+                          ? 'border-slate-700 bg-wipro-dark text-wipro-cyan'
+                          : 'border-slate-200 bg-slate-100 text-wipro-navy'
                       }`}>
-                        6 Enterprise Suites
+                        6 Suites
                       </span>
                     </div>
 
-                    {PRODUCTS.map((prod) => (
-                      <motion.button
-                        key={prod.id}
-                        whileHover={{ scale: 1.01 }}
-                        onClick={() => handleProductClick(prod.slug)}
-                        className={`p-3 rounded-xl text-left transition-all group flex items-start gap-3 border cursor-pointer ${
-                          isDark 
-                            ? 'hover:bg-[#0e2242] border-transparent hover:border-slate-700' 
-                            : 'hover:bg-slate-50 border-transparent hover:border-slate-200/90'
-                        }`}
-                      >
-                        <div className={`p-2.5 rounded-lg shrink-0 mt-0.5 border transition-all ${
-                          isDark 
-                            ? 'bg-[#071326] border-slate-700 group-hover:bg-[#053674]/30' 
-                            : 'bg-slate-100 border-slate-200/50 group-hover:bg-white group-hover:shadow-sm'
-                        }`}>
-                          {getProductIcon(prod.iconName)}
-                        </div>
-                        <div>
-                          <div className={`text-xs font-bold flex items-center gap-1.5 transition-colors ${
-                            isDark 
-                              ? 'text-white group-hover:text-[#389BB5]' 
-                              : 'text-slate-900 group-hover:text-[#053674]'
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {PRODUCTS.map((prod) => (
+                        <button
+                          key={prod.id}
+                          type="button"
+                          onClick={() => handleProductClick(prod.slug)}
+                          className={`flex items-start gap-3 rounded-xl border border-transparent p-2.5 text-left transition-colors ${
+                            isDark
+                              ? 'hover:border-slate-700 hover:bg-wipro-card-dark'
+                              : 'hover:border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          <span className={`mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg border ${
+                            isDark
+                              ? 'border-slate-700 bg-wipro-dark'
+                              : 'border-slate-200 bg-slate-100'
                           }`}>
-                            {prod.name}
-                          </div>
-                          <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
-                            {prod.shortDescription}
-                          </p>
-                        </div>
-                      </motion.button>
-                    ))}
-
-                    <div className="col-span-2 mt-2 p-3 bg-gradient-to-r from-[#071326] via-[#053674] to-[#0a2347] rounded-xl text-white flex items-center justify-between px-4 border border-slate-700/60">
-                      <div>
-                        <span className="text-xs font-bold block text-white">Custom Engineering & Consulting</span>
-                        <span className="text-slate-300 text-[11px]">Turnkey enterprise architectures & legacy modernization</span>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleNavClick('custom-technology')}
-                        className="text-xs font-bold bg-[#389BB5] hover:bg-[#2e8299] text-white px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
-                      >
-                        Explore <ArrowRight className="w-3 h-3" />
-                      </motion.button>
+                            {getProductIcon(prod.iconName)}
+                          </span>
+                          <span className="min-w-0">
+                            <span className={`block text-xs font-bold ${
+                              isDark ? 'text-white' : 'text-slate-900'
+                            }`}>
+                              {prod.name}
+                            </span>
+                            <span className="mt-0.5 line-clamp-1 block text-[11px] text-slate-400">
+                              {prod.shortDescription}
+                            </span>
+                          </span>
+                        </button>
+                      ))}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
-            <button
-              onClick={() => handleNavClick('solutions')}
-              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-semibold ${
-                currentPage === 'solutions' 
-                  ? isDark
-                    ? 'text-white bg-[#0b1c36] font-bold border-b-2 border-[#389BB5]'
-                    : 'text-[#053674] bg-slate-100 font-bold border-b-2 border-[#053674]'
-                  : isDark
-                    ? 'hover:text-white hover:bg-[#0b1c36]/60'
-                    : 'hover:text-[#053674] hover:bg-slate-50'
-              }`}
-            >
-              Industry Solutions
-            </button>
-
-            <button
-              onClick={() => handleNavClick('custom-technology')}
-              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-semibold ${
-                currentPage === 'custom-technology' 
-                  ? isDark
-                    ? 'text-white bg-[#0b1c36] font-bold border-b-2 border-[#389BB5]'
-                    : 'text-[#053674] bg-slate-100 font-bold border-b-2 border-[#053674]'
-                  : isDark
-                    ? 'hover:text-white hover:bg-[#0b1c36]/60'
-                    : 'hover:text-[#053674] hover:bg-slate-50'
-              }`}
-            >
-              Consulting & Dev
-            </button>
-
-            <button
-              onClick={() => handleNavClick('about')}
-              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-semibold ${
-                currentPage === 'about' 
-                  ? isDark
-                    ? 'text-white bg-[#0b1c36] font-bold border-b-2 border-[#389BB5]'
-                    : 'text-[#053674] bg-slate-100 font-bold border-b-2 border-[#053674]'
-                  : isDark
-                    ? 'hover:text-white hover:bg-[#0b1c36]/60'
-                    : 'hover:text-[#053674] hover:bg-slate-50'
-              }`}
-            >
-              About Us
-            </button>
-
-            <button
-              onClick={() => handleNavClick('contact')}
-              className={`px-3 py-2 rounded-lg transition-colors cursor-pointer text-sm font-semibold ${
-                currentPage === 'contact' 
-                  ? isDark
-                    ? 'text-white bg-[#0b1c36] font-bold border-b-2 border-[#389BB5]'
-                    : 'text-[#053674] bg-slate-100 font-bold border-b-2 border-[#053674]'
-                  : isDark
-                    ? 'hover:text-white hover:bg-[#0b1c36]/60'
-                    : 'hover:text-[#053674] hover:bg-slate-50'
-              }`}
-            >
-              Contact
-            </button>
-          </nav>
-
-          {/* Header Action CTA & Theme Toggle Button */}
-          <div className="hidden lg:flex items-center gap-3">
-            {/* Theme Toggle Pill Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={toggleTheme}
-              className={`focus-ring relative min-h-11 px-3 rounded-xl flex items-center gap-2 text-xs font-semibold border transition-all cursor-pointer ${
-                isDark 
-                  ? 'bg-[#0b1c36] border-slate-700 text-amber-300 hover:bg-[#0e2242] hover:border-amber-400/50 shadow-md shadow-black/30' 
-                  : 'bg-slate-100 border-slate-200 text-[#053674] hover:bg-slate-200 hover:border-[#053674]/30 shadow-xs'
-              }`}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Deep-Navy Dark Mode'}
-              aria-label="Toggle Theme"
-            >
-              <AnimatePresence mode="wait">
-                {isDark ? (
-                  <motion.div
-                    key="dark-icon"
-                    initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
-                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                    exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center gap-1.5"
-                  >
-                    <Sun className="w-4 h-4 text-[#FFC412] fill-[#FFC412]/30" />
-                    <span className="text-[11px] font-bold text-slate-200">Light</span>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="light-icon"
-                    initial={{ rotate: 90, opacity: 0, scale: 0.6 }}
-                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                    exit={{ rotate: -90, opacity: 0, scale: 0.6 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center gap-1.5"
-                  >
-                    <Moon className="w-4 h-4 text-[#053674] fill-[#053674]/20" />
-                    <span className="text-[11px] font-bold text-[#053674]">Deep Navy</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-
-            {/* Schedule Consultation Button */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => openDemoModal()}
-              className="btn-primary btn-sm"
-            >
-              <CalendarCheck className="w-3.5 h-3.5 text-[#FFC412]" />
-              Schedule a Consultation
-            </motion.button>
+                    <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-wipro-dark via-wipro-navy to-[#0a2347] px-4 py-3 text-white">
+                      <div>
+                        <span className="block text-xs font-bold">Custom Engineering & Consulting</span>
+                        <span className="text-[11px] text-slate-300">Turnkey architectures and legacy modernization</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleNavClick('custom-technology')}
+                        className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-wipro-cyan px-3 text-xs font-bold text-wipro-dark transition-colors hover:bg-[#4aadc4]"
+                      >
+                        Explore <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Mobile Actions: Theme Toggle & Hamburger */}
-          <div className="lg:hidden flex items-center gap-2">
-            {/* Mobile Theme Toggle */}
+          {PRIMARY_LINKS.filter((item) => item.page !== 'home').map((item) => (
             <button
-              onClick={toggleTheme}
-              className={`focus-ring min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg border transition-colors cursor-pointer ${
-                isDark 
-                  ? 'bg-[#0b1c36] border-slate-700 text-[#FFC412]' 
-                  : 'bg-slate-100 border-slate-200 text-[#053674]'
-              }`}
-              aria-label="Toggle Theme"
+              key={item.page}
+              type="button"
+              onClick={() => handleNavClick(item.page)}
+              aria-current={currentPage === item.page ? 'page' : undefined}
+              className={desktopLinkClass(currentPage === item.page)}
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="xl:hidden">{item.short}</span>
+              <span className="hidden xl:inline">{item.full}</span>
             </button>
+          ))}
+        </nav>
 
-            <button
-              onClick={() => openDemoModal()}
-              className="btn-primary btn-sm"
-            >
-              Consult
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`focus-ring min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg transition-colors ${
-                isDark 
-                  ? 'text-slate-200 hover:bg-[#0b1c36]' 
-                  : 'text-slate-700 hover:bg-slate-100'
-              }`}
-              aria-label="Toggle Navigation Menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+        <div className="hidden items-center gap-2 lg:flex">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={`focus-ring inline-flex size-11 items-center justify-center rounded-full border transition-colors ${
+              isDark
+                ? 'border-slate-700 bg-wipro-surface-dark text-wipro-yellow hover:border-wipro-yellow/40'
+                : 'border-slate-200 bg-white text-wipro-navy hover:border-wipro-navy/30 hover:bg-slate-50'
+            }`}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openDemoModal()}
+            className={`focus-ring inline-flex h-11 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition-colors ${
+              isDark
+                ? 'bg-white text-wipro-navy hover:bg-slate-100'
+                : 'bg-wipro-navy text-white shadow-sm shadow-wipro-navy/25 hover:bg-wipro-blue'
+            }`}
+          >
+            <CalendarCheck className={`h-4 w-4 ${isDark ? 'text-wipro-navy' : 'text-wipro-yellow'}`} aria-hidden="true" />
+            <span className="xl:hidden">Consult</span>
+            <span className="hidden xl:inline">Schedule a Consultation</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={`focus-ring inline-flex size-11 items-center justify-center rounded-full border transition-colors ${
+              isDark
+                ? 'border-slate-700 bg-wipro-surface-dark text-wipro-yellow'
+                : 'border-slate-200 bg-white text-wipro-navy'
+            }`}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`focus-ring inline-flex size-11 items-center justify-center rounded-full border transition-colors ${
+              isDark
+                ? 'border-slate-700 bg-wipro-surface-dark text-slate-100'
+                : 'border-slate-200 bg-white text-slate-700'
+            }`}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className={`lg:hidden border-b px-4 pt-3 pb-6 space-y-3 overflow-hidden backdrop-blur-2xl ${
-              isDark 
-                ? 'bg-[#071326]/98 border-slate-800 text-slate-200' 
-                : 'bg-white/98 border-slate-200 text-slate-700'
+            className={`overflow-hidden border-b px-4 pb-4 pt-2 lg:hidden ${
+              isDark
+                ? 'border-slate-800 bg-wipro-dark/98 text-slate-200'
+                : 'border-slate-200 bg-white/98 text-slate-700'
             }`}
           >
-            <div className="flex flex-col space-y-1">
+            <div className="mx-auto flex max-w-7xl flex-col gap-1">
               <button
+                type="button"
                 onClick={() => handleNavClick('home')}
-                className={`p-2.5 rounded-lg text-left font-semibold text-sm ${
-                  currentPage === 'home' 
-                    ? isDark 
-                      ? 'bg-[#0b1c36] text-[#389BB5] font-bold' 
-                      : 'bg-slate-100 text-[#053674] font-bold' 
-                    : isDark ? 'text-slate-200' : 'text-slate-700'
-                }`}
+                aria-current={currentPage === 'home' ? 'page' : undefined}
+                className={mobileLinkClass(currentPage === 'home')}
               >
                 Home
               </button>
 
-              {/* Mobile Products Accordion */}
               <div>
                 <button
+                  type="button"
                   onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
-                  className={`w-full p-2.5 rounded-lg text-left font-semibold text-sm flex justify-between items-center ${
-                    isDark ? 'text-slate-200' : 'text-slate-700'
-                  }`}
+                  aria-expanded={mobileProductsOpen}
+                  className={`${mobileLinkClass(isProductPage)} justify-between`}
                 >
                   <span>Products & Platforms</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${mobileProductsOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 transition-transform ${mobileProductsOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
 
                 <AnimatePresence>
                   {mobileProductsOpen && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className={`pl-3 pr-1 py-1 space-y-1 rounded-xl my-1 border overflow-hidden ${
-                        isDark 
-                          ? 'bg-[#0b1c36] border-slate-700' 
-                          : 'bg-slate-50 border-slate-200'
+                      className={`my-1 overflow-hidden rounded-xl border ${
+                        isDark ? 'border-slate-700 bg-wipro-surface-dark' : 'border-slate-200 bg-slate-50'
                       }`}
                     >
                       {PRODUCTS.map((prod) => (
                         <button
                           key={prod.id}
+                          type="button"
                           onClick={() => handleProductClick(prod.slug)}
-                          className={`w-full p-2 text-left text-xs font-medium flex items-center gap-2 rounded-lg transition-colors ${
-                            isDark 
-                              ? 'text-slate-300 hover:text-[#389BB5] hover:bg-[#0e2242]' 
-                              : 'text-slate-700 hover:text-[#053674] hover:bg-white'
+                          className={`flex h-11 w-full items-center gap-2.5 px-3 text-left text-sm font-medium ${
+                            isDark
+                              ? 'text-slate-200 hover:bg-wipro-card-dark hover:text-wipro-cyan'
+                              : 'text-slate-700 hover:bg-white hover:text-wipro-navy'
                           }`}
                         >
                           {getProductIcon(prod.iconName)}
@@ -474,102 +419,75 @@ export function Navbar() {
                 </AnimatePresence>
               </div>
 
-              <button
-                onClick={() => handleNavClick('solutions')}
-                className={`p-2.5 rounded-lg text-left font-semibold text-sm ${
-                  currentPage === 'solutions' 
-                    ? isDark 
-                      ? 'bg-[#0b1c36] text-[#389BB5] font-bold' 
-                      : 'bg-slate-100 text-[#053674] font-bold' 
-                    : isDark ? 'text-slate-200' : 'text-slate-700'
-                }`}
-              >
-                Industry Solutions
-              </button>
+              {PRIMARY_LINKS.filter((item) => item.page !== 'home').map((item) => (
+                <button
+                  key={item.page}
+                  type="button"
+                  onClick={() => handleNavClick(item.page)}
+                  aria-current={currentPage === item.page ? 'page' : undefined}
+                  className={mobileLinkClass(currentPage === item.page)}
+                >
+                  {item.full}
+                </button>
+              ))}
 
-              <button
-                onClick={() => handleNavClick('custom-technology')}
-                className={`p-2.5 rounded-lg text-left font-semibold text-sm ${
-                  currentPage === 'custom-technology' 
-                    ? isDark 
-                      ? 'bg-[#0b1c36] text-[#389BB5] font-bold' 
-                      : 'bg-slate-100 text-[#053674] font-bold' 
-                    : isDark ? 'text-slate-200' : 'text-slate-700'
-                }`}
-              >
-                Consulting & Dev
-              </button>
-
-              <button
-                onClick={() => handleNavClick('about')}
-                className={`p-2.5 rounded-lg text-left font-semibold text-sm ${
-                  currentPage === 'about' 
-                    ? isDark 
-                      ? 'bg-[#0b1c36] text-[#389BB5] font-bold' 
-                      : 'bg-slate-100 text-[#053674] font-bold' 
-                    : isDark ? 'text-slate-200' : 'text-slate-700'
-                }`}
-              >
-                About Us
-              </button>
-
-              <button
-                onClick={() => handleNavClick('contact')}
-                className={`p-2.5 rounded-lg text-left font-semibold text-sm ${
-                  currentPage === 'contact' 
-                    ? isDark 
-                      ? 'bg-[#0b1c36] text-[#389BB5] font-bold' 
-                      : 'bg-slate-100 text-[#053674] font-bold' 
-                    : isDark ? 'text-slate-200' : 'text-slate-700'
-                }`}
-              >
-                Contact
-              </button>
-            </div>
-
-            {/* Mobile Drawer Footer with Theme Toggle and Consult */}
-            <div className={`pt-3 border-t flex flex-col gap-2.5 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-              <button
-                onClick={toggleTheme}
-                className={`w-full py-2.5 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-colors ${
-                  isDark 
-                    ? 'bg-[#0b1c36] border-slate-700 text-slate-200' 
-                    : 'bg-slate-100 border-slate-200 text-[#053674]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {isDark ? <Sun className="w-4 h-4 text-[#FFC412]" /> : <Moon className="w-4 h-4 text-[#053674]" />}
-                  <span>Active Theme:</span>
+              <div className={`mt-2 grid grid-cols-[auto_1fr] items-center gap-2 border-t pt-3 ${
+                isDark ? 'border-slate-800' : 'border-slate-200'
+              }`}>
+                <div className={`grid h-11 grid-cols-2 rounded-full border p-1 ${
+                  isDark ? 'border-slate-700 bg-wipro-surface-dark' : 'border-slate-200 bg-slate-100'
+                }`}>
+                  <button
+                    type="button"
+                    onClick={() => setTheme('light')}
+                    aria-pressed={!isDark}
+                    className={`inline-flex items-center justify-center gap-1 rounded-full px-3 text-xs font-semibold ${
+                      !isDark ? 'bg-white text-wipro-navy shadow-sm' : 'text-slate-400'
+                    }`}
+                  >
+                    <Sun className="h-3.5 w-3.5" aria-hidden="true" />
+                    Light
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme('dark')}
+                    aria-pressed={isDark}
+                    className={`inline-flex items-center justify-center gap-1 rounded-full px-3 text-xs font-semibold ${
+                      isDark ? 'bg-wipro-dark text-white' : 'text-slate-500'
+                    }`}
+                  >
+                    <Moon className="h-3.5 w-3.5" aria-hidden="true" />
+                    Dark
+                  </button>
                 </div>
-                <span className="capitalize px-2 py-0.5 rounded bg-white/10">{isDark ? 'Deep-Navy Dark' : 'Light Mode'}</span>
-              </button>
 
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  openDemoModal();
-                }}
-                className="btn-primary w-full"
-              >
-                <CalendarCheck className="w-4 h-4 text-[#FFC412]" /> Schedule Consultation
-              </motion.button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openDemoModal();
+                  }}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-wipro-navy px-4 text-sm font-semibold text-white"
+                >
+                  <CalendarCheck className="h-4 w-4 text-wipro-yellow" aria-hidden="true" />
+                  Consult
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Wipro Signature Multi-Color Dots Spectrum Scroll Progress Bar */}
-      <div className={`absolute -bottom-[1.5px] left-0 right-0 h-[2.5px] overflow-hidden pointer-events-none z-50 ${
+      <div className={`pointer-events-none absolute -bottom-[1.5px] left-0 right-0 z-50 h-[2.5px] overflow-hidden ${
         isDark ? 'bg-slate-900' : 'bg-slate-100'
       }`}>
         <motion.div
-          style={{ 
-            scaleX, 
+          style={{
+            scaleX,
             transformOrigin: '0%',
             background: 'linear-gradient(90deg, #301157 0%, #B4156E 20%, #FFC412 40%, #A4CE4F 60%, #389BB5 80%, #053674 100%)'
           }}
-          className="h-full w-full shadow-[0_0_8px_rgba(56,155,181,0.6)]"
+          className="h-full w-full"
         />
       </div>
     </header>

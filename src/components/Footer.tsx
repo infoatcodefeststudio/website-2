@@ -36,8 +36,8 @@ export function Footer() {
                 <span className="text-xl font-extrabold tracking-tight text-white block">
                   Codefest <span className="text-[#389BB5]">Studio</span>
                 </span>
-                <span className="text-[9px] uppercase tracking-widest font-bold text-slate-400">
-                  Ambitions Realized • Enterprise Tech
+                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#389BB5]">
+                  Enterprise Tech
                 </span>
               </div>
             </div>
