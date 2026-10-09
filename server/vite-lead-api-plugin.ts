@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite';
 import { loadEnv } from 'vite';
-import { handleLeadRequest } from './lead-handler';
+import { handleLeadRequest } from '../api/leads';
 
 function attachLeadApi(
   middlewares: { use: (handler: (req: any, res: any, next: () => void) => void) => void },
