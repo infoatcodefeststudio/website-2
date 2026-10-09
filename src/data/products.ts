@@ -682,3 +682,9 @@ export const PRODUCTS: Product[] = [
     }
   }
 ];
+
+export const PRODUCTS_BY_SLUG: Record<string, Product> = Object.fromEntries(
+  PRODUCTS.map((product) => [product.slug, product])
+);
+
+export const PRODUCT_PAGE_SLUGS = new Set(PRODUCTS.map((product) => product.slug));

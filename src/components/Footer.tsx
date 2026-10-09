@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigation, PageRoute } from '../context/NavigationContext';
+import { useDemoModal, useNavigation, PageRoute } from '../context/NavigationContext';
 import { COMPANY_INFO } from '../data/company';
 import { PRODUCTS } from '../data/products';
 import { WiproBrandMark, WiproDotCluster } from './WiproBrandMark';
@@ -7,13 +7,12 @@ import {
   Mail, 
   Globe, 
   ArrowUpRight, 
-  ChevronRight,
-  ShieldCheck,
-  Building2
+  ChevronRight
 } from 'lucide-react';
 
 export function Footer() {
-  const { navigate, openDemoModal } = useNavigation();
+  const { navigate } = useNavigation();
+  const { openDemoModal } = useDemoModal();
 
   return (
     <footer className="bg-[#071326] text-slate-300 border-t border-slate-800 pt-0 pb-12 relative overflow-hidden">

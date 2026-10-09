@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
-import { useNavigation, PageRoute } from '../context/NavigationContext';
+import { useDemoModal, useNavigation, PageRoute } from '../context/NavigationContext';
 import { useTheme } from '../context/ThemeContext';
-import { PRODUCTS } from '../data/products';
+import { PRODUCTS, PRODUCT_PAGE_SLUGS } from '../data/products';
 import { WiproBrandMark, WiproDotCluster } from './WiproBrandMark';
 import {
   ChevronDown,
@@ -18,7 +18,23 @@ import {
   CalendarCheck,
   Sun,
   Moon,
+  type LucideIcon,
 } from 'lucide-react';
+
+const NAV_PRODUCT_ICONS: Record<string, { Icon: LucideIcon; className: string }> = {
+  Warehouse: { Icon: Warehouse, className: 'w-4 h-4 text-wipro-navy dark:text-wipro-cyan' },
+  Truck: { Icon: Truck, className: 'w-4 h-4 text-wipro-cyan' },
+  ShieldCheck: { Icon: ShieldCheck, className: 'w-4 h-4 text-wipro-green' },
+  Users: { Icon: Users, className: 'w-4 h-4 text-wipro-pink' },
+  Hotel: { Icon: Hotel, className: 'w-4 h-4 text-wipro-yellow' },
+  Boxes: { Icon: Boxes, className: 'w-4 h-4 text-wipro-purple dark:text-wipro-green' },
+};
+
+const DEFAULT_NAV_PRODUCT_ICON = { Icon: Boxes, className: 'w-4 h-4 text-wipro-navy dark:text-wipro-cyan' };
+
+function preloadDemoModal() {
+  void import('./DemoModal');
+}
 
 const PRIMARY_LINKS: { page: PageRoute; short: string; full: string }[] = [
   { page: 'home', short: 'Home', full: 'Home' },
@@ -29,7 +45,8 @@ const PRIMARY_LINKS: { page: PageRoute; short: string; full: string }[] = [
 ];
 
 export function Navbar() {
-  const { currentPage, navigate, openDemoModal } = useNavigation();
+  const { currentPage, navigate } = useNavigation();
+  const { openDemoModal } = useDemoModal();
   const { isDark, toggleTheme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [productsDropdownOpen, setProductsDropdownOpen] = useState<boolean>(false);
@@ -75,15 +92,8 @@ export function Navbar() {
   }, [productsDropdownOpen]);
 
   const getProductIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Warehouse': return <Warehouse className="w-4 h-4 text-wipro-navy dark:text-wipro-cyan" />;
-      case 'Truck': return <Truck className="w-4 h-4 text-wipro-cyan" />;
-      case 'ShieldCheck': return <ShieldCheck className="w-4 h-4 text-wipro-green" />;
-      case 'Users': return <Users className="w-4 h-4 text-wipro-pink" />;
-      case 'Hotel': return <Hotel className="w-4 h-4 text-wipro-yellow" />;
-      case 'Boxes': return <Boxes className="w-4 h-4 text-wipro-purple dark:text-wipro-green" />;
-      default: return <Boxes className="w-4 h-4 text-wipro-navy dark:text-wipro-cyan" />;
-    }
+    const { Icon, className } = NAV_PRODUCT_ICONS[iconName] ?? DEFAULT_NAV_PRODUCT_ICON;
+    return <Icon className={className} />;
   };
 
   const handleNavClick = (page: PageRoute) => {
@@ -98,7 +108,7 @@ export function Navbar() {
     setMobileMenuOpen(false);
   };
 
-  const isProductPage = ['wms', 'tms', 'gate-yard-management', 'vendor-management', 'hotel-erp', 'inventory-management'].includes(currentPage);
+  const isProductPage = PRODUCT_PAGE_SLUGS.has(currentPage);
 
   const desktopLinkClass = (active: boolean) =>
     `inline-flex h-9 items-center rounded-full px-3 text-[13px] font-semibold leading-none tracking-tight transition-colors ${
@@ -314,6 +324,8 @@ export function Navbar() {
 
           <button
             type="button"
+            onMouseEnter={preloadDemoModal}
+            onFocus={preloadDemoModal}
             onClick={() => openDemoModal()}
             className={`focus-ring inline-flex h-11 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition-colors ${
               isDark

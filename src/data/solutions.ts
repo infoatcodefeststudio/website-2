@@ -244,3 +244,5 @@ export const SOLUTIONS: IndustrySolution[] = [
     iconName: 'Cpu'
   }
 ];
+
+export const SOLUTIONS_BY_ID = new Map(SOLUTIONS.map((solution) => [solution.id, solution]));

@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Product, PRODUCTS } from '../data/products';
-import { useNavigation } from '../context/NavigationContext';
+import { Product } from '../data/products';
+import { useDemoModal } from '../context/NavigationContext';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
 import { FadeIn, StaggerContainer, StaggerItem } from '../components/animations/MotionSection';
-import { WmsDashboardMockup } from '../components/dashboards/WmsDashboardMockup';
-import { TmsDashboardMockup } from '../components/dashboards/TmsDashboardMockup';
-import { YardDashboardMockup } from '../components/dashboards/YardDashboardMockup';
-import { VmsDashboardMockup } from '../components/dashboards/VmsDashboardMockup';
-import { HotelErpDashboardMockup } from '../components/dashboards/HotelErpDashboardMockup';
-import { InventoryDashboardMockup } from '../components/dashboards/InventoryDashboardMockup';
-import { ProductDetailSkeleton } from '../components/skeletons/ProductDetailSkeleton';
 import { WiproDotCluster } from '../components/WiproBrandMark';
-import { 
-  ArrowRight, 
-  CalendarCheck, 
-  ChevronDown, 
-  Sparkles, 
-  HelpCircle
+import {
+  CalendarCheck,
+  ChevronDown,
+  Sparkles,
+  HelpCircle,
 } from 'lucide-react';
+
+const DASHBOARD_LOADERS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+  wms: lazy(() => import('../components/dashboards/WmsDashboardMockup').then((m) => ({ default: m.WmsDashboardMockup }))),
+  tms: lazy(() => import('../components/dashboards/TmsDashboardMockup').then((m) => ({ default: m.TmsDashboardMockup }))),
+  'gate-yard-management': lazy(() => import('../components/dashboards/YardDashboardMockup').then((m) => ({ default: m.YardDashboardMockup }))),
+  'vendor-management': lazy(() => import('../components/dashboards/VmsDashboardMockup').then((m) => ({ default: m.VmsDashboardMockup }))),
+  'hotel-erp': lazy(() => import('../components/dashboards/HotelErpDashboardMockup').then((m) => ({ default: m.HotelErpDashboardMockup }))),
+  'inventory-management': lazy(() => import('../components/dashboards/InventoryDashboardMockup').then((m) => ({ default: m.InventoryDashboardMockup }))),
+};
+
+const INTEGRATION_PARTNERS = ['SAP S/4HANA', 'Oracle SCM', 'Tally Prime', 'Zebra Scanners', 'GPS IoT Telematics', 'GraphQL & REST'];
+
+const BREADCRUMB_PLATFORM = { label: 'Platforms', page: 'home' as const };
+
+function DashboardFallback() {
+  return (
+    <div className="min-h-[320px] rounded-2xl bg-slate-100 dark:bg-[#0b1c36] animate-pulse" aria-hidden="true" />
+  );
+}
 
 interface ProductDetailPageProps {
   product: Product;
@@ -27,45 +38,23 @@ interface ProductDetailPageProps {
 }
 
 export function ProductDetailPage({ product, isLoading: externalLoading }: ProductDetailPageProps) {
-  const { openDemoModal } = useNavigation();
+  const { openDemoModal } = useDemoModal();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [isTransitioning, setIsTransitioning] = useState(true);
+  const breadcrumbItems = useMemo(
+    () => [BREADCRUMB_PLATFORM, { label: product.name }],
+    [product.name]
+  );
+  const DashboardMockup = DASHBOARD_LOADERS[product.slug] ?? DASHBOARD_LOADERS.wms;
 
-  // Transition skeleton on product switch for smooth perceived performance
-  React.useEffect(() => {
-    setIsTransitioning(true);
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [product.slug]);
-
-  if (externalLoading || isTransitioning) {
-    return <ProductDetailSkeleton />;
+  if (externalLoading) {
+    return <DashboardFallback />;
   }
-
-  const renderDashboardMockup = () => {
-    switch (product.slug) {
-      case 'wms': return <WmsDashboardMockup />;
-      case 'tms': return <TmsDashboardMockup />;
-      case 'gate-yard-management': return <YardDashboardMockup />;
-      case 'vendor-management': return <VmsDashboardMockup />;
-      case 'hotel-erp': return <HotelErpDashboardMockup />;
-      case 'inventory-management': return <InventoryDashboardMockup />;
-      default: return <WmsDashboardMockup />;
-    }
-  };
 
   return (
     <div className="bg-slate-50 dark:bg-[#071326] min-h-screen transition-colors duration-300">
       {/* Top Banner with Breadcrumbs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <Breadcrumbs 
-          items={[
-            { label: 'Platforms', page: 'home' },
-            { label: product.name }
-          ]} 
-        />
+        <Breadcrumbs items={breadcrumbItems} />
       </div>
 
       {/* ========================================================================= */}
@@ -133,7 +122,9 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
               transition={{ delay: 0.1, duration: 0.5 }}
               className="lg:col-span-7 relative z-10"
             >
-              {renderDashboardMockup()}
+              <Suspense fallback={<DashboardFallback />}>
+                <DashboardMockup />
+              </Suspense>
             </motion.div>
           </div>
         </div>
@@ -254,7 +245,7 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
           </FadeIn>
 
           <StaggerContainer staggerDelay={0.05} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
-            {['SAP S/4HANA', 'Oracle SCM', 'Tally Prime', 'Zebra Scanners', 'GPS IoT Telematics', 'GraphQL & REST'].map((item: string, idx: number) => (
+            {INTEGRATION_PARTNERS.map((item, idx) => (
               <StaggerItem key={idx}>
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0b1c36] border border-slate-200 dark:border-slate-700 hover:border-[#053674] dark:hover:border-[#389BB5] hover:bg-white dark:hover:bg-[#0e2242] transition-all shadow-xs">
                   <div className="text-xs font-bold text-[#071326] dark:text-slate-200">{item}</div>
@@ -299,7 +290,7 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
                   </button>
 
                   <AnimatePresence>
-                    {isOpen && (
+                    {isOpen ? (
                       <motion.div 
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -311,7 +302,7 @@ export function ProductDetailPage({ product, isLoading: externalLoading }: Produ
                           {faq.answer}
                         </div>
                       </motion.div>
-                    )}
+                    ) : null}
                   </AnimatePresence>
                 </div>
               );

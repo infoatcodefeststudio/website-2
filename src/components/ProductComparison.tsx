@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PRODUCT_COMPARISON_MATRIX } from '../data/company';
-import { useNavigation, PageRoute } from '../context/NavigationContext';
+import { useDemoModal, useNavigation, PageRoute } from '../context/NavigationContext';
 import { FadeIn } from './animations/MotionSection';
 import { WiproDotCluster } from './WiproBrandMark';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 
+const FILTER_SLUGS: Record<'all' | 'logistics' | 'facility' | 'hospitality', Set<string>> = {
+  all: new Set(PRODUCT_COMPARISON_MATRIX.map((item) => item.slug)),
+  logistics: new Set(['wms', 'tms', 'inventory-management']),
+  facility: new Set(['gate-yard-management', 'vendor-management']),
+  hospitality: new Set(['hotel-erp', 'inventory-management']),
+};
+
 export function ProductComparison() {
-  const { navigate, openDemoModal } = useNavigation();
+  const { navigate } = useNavigation();
+  const { openDemoModal } = useDemoModal();
   const [filter, setFilter] = useState<'all' | 'logistics' | 'facility' | 'hospitality'>('all');
 
-  const filteredProducts = PRODUCT_COMPARISON_MATRIX.filter((item) => {
-    if (filter === 'all') return true;
-    if (filter === 'logistics') return ['wms', 'tms', 'inventory-management'].includes(item.slug);
-    if (filter === 'facility') return ['gate-yard-management', 'vendor-management'].includes(item.slug);
-    if (filter === 'hospitality') return ['hotel-erp', 'inventory-management'].includes(item.slug);
-    return true;
-  });
+  const filteredProducts = PRODUCT_COMPARISON_MATRIX.filter((item) => FILTER_SLUGS[filter].has(item.slug));
 
   return (
     <section className="py-20 bg-white dark:bg-[#071326] transition-colors duration-300 relative overflow-hidden border-t border-slate-200/80 dark:border-slate-800">

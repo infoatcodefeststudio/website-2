@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SOLUTIONS } from '../data/solutions';
-import { useNavigation, PageRoute } from '../context/NavigationContext';
+import { SOLUTIONS, SOLUTIONS_BY_ID } from '../data/solutions';
+import { useDemoModal, useNavigation, PageRoute } from '../context/NavigationContext';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
 import { FadeIn, StaggerContainer, StaggerItem } from '../components/animations/MotionSection';
 import { WiproDotCluster } from '../components/WiproBrandMark';
-import { 
-  Building2, 
-  ArrowRight, 
-  CheckCircle2, 
-  Sparkles, 
-  CalendarCheck, 
+import {
+  Building2,
+  ArrowRight,
+  CheckCircle2,
+  CalendarCheck,
   AlertCircle,
   Truck,
   Warehouse,
@@ -20,28 +19,34 @@ import {
   ShoppingBag,
   Hotel,
   PackageCheck,
-  Cpu
+  Cpu,
+  type LucideIcon,
 } from 'lucide-react';
 
+const INDUSTRY_ICONS: Record<string, { Icon: LucideIcon; className: string }> = {
+  Truck: { Icon: Truck, className: 'w-5 h-5 text-[#389BB5]' },
+  Warehouse: { Icon: Warehouse, className: 'w-5 h-5 text-[#053674] dark:text-[#389BB5]' },
+  Share2: { Icon: Share2, className: 'w-5 h-5 text-[#B4156E]' },
+  Factory: { Icon: Factory, className: 'w-5 h-5 text-[#053674] dark:text-[#389BB5]' },
+  ShoppingBag: { Icon: ShoppingBag, className: 'w-5 h-5 text-[#FFC412]' },
+  Hotel: { Icon: Hotel, className: 'w-5 h-5 text-[#A4CE4F]' },
+  PackageCheck: { Icon: PackageCheck, className: 'w-5 h-5 text-[#389BB5]' },
+  Cpu: { Icon: Cpu, className: 'w-5 h-5 text-[#301157] dark:text-[#389BB5]' },
+};
+
+const DEFAULT_INDUSTRY_ICON = { Icon: Building2, className: 'w-5 h-5 text-[#053674] dark:text-[#389BB5]' };
+
+function IndustryIcon({ name }: { name: string }) {
+  const { Icon, className } = INDUSTRY_ICONS[name] ?? DEFAULT_INDUSTRY_ICON;
+  return <Icon className={className} />;
+}
+
 export function SolutionsPage() {
-  const { navigate, openDemoModal, selectedIndustry } = useNavigation();
+  const { navigate, selectedIndustry } = useNavigation();
+  const { openDemoModal } = useDemoModal();
   const [activeIndustryId, setActiveIndustryId] = useState<string>(selectedIndustry || 'logistics-transportation');
 
-  const activeSolution = SOLUTIONS.find((s) => s.id === activeIndustryId) || SOLUTIONS[0];
-
-  const getIndustryIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Truck': return <Truck className="w-5 h-5 text-[#389BB5]" />;
-      case 'Warehouse': return <Warehouse className="w-5 h-5 text-[#053674] dark:text-[#389BB5]" />;
-      case 'Share2': return <Share2 className="w-5 h-5 text-[#B4156E]" />;
-      case 'Factory': return <Factory className="w-5 h-5 text-[#053674] dark:text-[#389BB5]" />;
-      case 'ShoppingBag': return <ShoppingBag className="w-5 h-5 text-[#FFC412]" />;
-      case 'Hotel': return <Hotel className="w-5 h-5 text-[#A4CE4F]" />;
-      case 'PackageCheck': return <PackageCheck className="w-5 h-5 text-[#389BB5]" />;
-      case 'Cpu': return <Cpu className="w-5 h-5 text-[#301157] dark:text-[#389BB5]" />;
-      default: return <Building2 className="w-5 h-5 text-[#053674] dark:text-[#389BB5]" />;
-    }
-  };
+  const activeSolution = SOLUTIONS_BY_ID.get(activeIndustryId) || SOLUTIONS[0];
 
   return (
     <div className="bg-slate-50 dark:bg-[#071326] min-h-screen transition-colors duration-300">
@@ -84,7 +89,7 @@ export function SolutionsPage() {
                     : 'bg-slate-100 dark:bg-[#071326] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#122b52] border border-transparent dark:border-slate-700'
                 }`}
               >
-                {getIndustryIcon(sol.iconName)}
+                <IndustryIcon name={sol.iconName} />
                 <span>{sol.title}</span>
               </button>
             ))}

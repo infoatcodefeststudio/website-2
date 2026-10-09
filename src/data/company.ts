@@ -1,8 +1,10 @@
+export const SITE_ORIGIN = 'https://codefeststudio.com';
+
 export const COMPANY_INFO = {
   name: 'Codefest Studio',
   tagline: 'Technology Solutions. Product Management. Business Transformation.',
   brandMessage: "Codefest Studio doesn't just provide software. We build technology around the way your business works.",
-  email: 'info@coldfeststudio.com',
+  email: 'info@codefeststudio.com',
   website: 'codefeststudio.com',
   year: 2026,
   positioning: 'Codefest Studio is a technology solutions and product management company that provides customised technology solutions for businesses. The company also offers ready-to-deploy enterprise products for Warehouse Management, Transport Management, Yard/Gate Management, Vendor Management, Hotel ERP and Inventory Management.',

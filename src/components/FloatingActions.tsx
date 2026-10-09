@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigation } from '../context/NavigationContext';
+import { useDemoModal } from '../context/NavigationContext';
 import { ArrowUp, CalendarCheck } from 'lucide-react';
 
 export function FloatingActions() {
-  const { openDemoModal } = useNavigation();
+  const { openDemoModal } = useDemoModal();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -23,6 +23,8 @@ export function FloatingActions() {
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5">
       <button
         type="button"
+        onMouseEnter={() => { void import('./DemoModal'); }}
+        onFocus={() => { void import('./DemoModal'); }}
         onClick={() => openDemoModal()}
         className="bg-[#053674] hover:bg-[#0066CC] text-white pl-4 pr-5 py-3 rounded-full shadow-2xl shadow-[#053674]/40 font-bold text-xs flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#389BB5]/40 backdrop-blur-md"
       >

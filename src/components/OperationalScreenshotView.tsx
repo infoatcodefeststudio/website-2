@@ -10,11 +10,13 @@ const statusToneClasses = {
 
 interface OperationalScreenshotViewProps {
   config: OperationalViewConfig;
+  priority?: boolean;
 }
 
-export function OperationalScreenshotView({ config }: OperationalScreenshotViewProps) {
+export function OperationalScreenshotView({ config, priority = false }: OperationalScreenshotViewProps) {
   const [activeId, setActiveId] = useState(config.screens[0]?.id ?? '');
   const activeScreen = config.screens.find((screen) => screen.id === activeId) ?? config.screens[0];
+  const isPriorityImage = priority && activeScreen?.id === config.screens[0]?.id;
 
   if (!activeScreen) {
     return null;
@@ -77,7 +79,8 @@ export function OperationalScreenshotView({ config }: OperationalScreenshotViewP
                 src={activeScreen.src}
                 alt={activeScreen.alt}
                 className="block h-auto w-full max-h-[min(420px,58vh)] object-cover object-top"
-                loading="lazy"
+                loading={isPriorityImage ? 'eager' : 'lazy'}
+                fetchPriority={isPriorityImage ? 'high' : 'auto'}
                 decoding="async"
               />
             </motion.div>

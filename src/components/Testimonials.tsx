@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TESTIMONIALS, TestimonialItem } from '../data/testimonials';
-import { useNavigation } from '../context/NavigationContext';
+import { TESTIMONIALS } from '../data/testimonials';
+import { useDemoModal } from '../context/NavigationContext';
 import { FadeIn, StaggerContainer, StaggerItem } from './animations/MotionSection';
 import { WiproDotCluster } from './WiproBrandMark';
 import { 
@@ -29,7 +29,7 @@ export function Testimonials({
   limit,
   showFilters = true
 }: TestimonialsProps) {
-  const { openDemoModal } = useNavigation();
+  const { openDemoModal } = useDemoModal();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeSpotlightId, setActiveSpotlightId] = useState<string>(TESTIMONIALS[0].id);
 

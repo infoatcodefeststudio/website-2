@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { COMPANY_INFO } from '../data/company';
+import { submitLead } from '../lib/submit-lead';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
 import { FadeIn, StaggerContainer, StaggerItem } from '../components/animations/MotionSection';
@@ -8,7 +9,6 @@ import { WiproBrandMark, WiproDotCluster } from '../components/WiproBrandMark';
 import { 
   Mail, 
   Globe, 
-  Phone, 
   Send, 
   CheckCircle2, 
   Building2, 
@@ -29,15 +29,29 @@ export function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [ticketId, setTicketId] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const ticket = await submitLead({
+        source: 'contact',
+        fullName: name,
+        companyName: company,
+        email,
+        phone,
+        businessType: service,
+        message: requirement.trim() || `Inquiry about ${service}`,
+      });
+      setTicketId(ticket);
       setIsSubmitted(true);
-      setTicketId('ENQ-' + Math.floor(100000 + Math.random() * 900000));
-    }, 700);
+    } catch {
+      setSubmitError('Failed to send your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -231,7 +245,7 @@ export function ContactPage() {
                             required
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            placeholder="+91 98765 43210"
+                            placeholder="Your phone number"
                             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#071326] border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#389BB5]"
                           />
                         </div>
@@ -268,6 +282,10 @@ export function ContactPage() {
                           className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-[#071326] border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#389BB5]"
                         ></textarea>
                       </div>
+
+                      {submitError ? (
+                        <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold">{submitError}</p>
+                      ) : null}
 
                       <motion.button
                         whileHover={{ scale: 1.02 }}

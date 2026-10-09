@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { CUSTOM_DEV_PROCESS, CUSTOM_SERVICES, COMPANY_INFO } from '../data/company';
-import { useNavigation } from '../context/NavigationContext';
+import { useDemoModal } from '../context/NavigationContext';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
 import { FadeIn, StaggerContainer, StaggerItem } from '../components/animations/MotionSection';
@@ -23,28 +23,33 @@ import {
   Zap,
   PackagePlus,
   Repeat,
-  ShieldCheck
+  ShieldCheck,
+  type LucideIcon,
 } from 'lucide-react';
 
-export function CustomTechnologyPage() {
-  const { openDemoModal } = useNavigation();
+const SERVICE_ICONS: Record<string, { Icon: LucideIcon; className: string }> = {
+  Globe: { Icon: Globe, className: 'w-5 h-5 text-[#053674] dark:text-[#389BB5]' },
+  Smartphone: { Icon: Smartphone, className: 'w-5 h-5 text-[#389BB5]' },
+  Layers: { Icon: Layers, className: 'w-5 h-5 text-[#B4156E]' },
+  Building2: { Icon: Building2, className: 'w-5 h-5 text-[#301157] dark:text-[#A4CE4F]' },
+  Workflow: { Icon: Workflow, className: 'w-5 h-5 text-[#A4CE4F]' },
+  BarChart3: { Icon: BarChart3, className: 'w-5 h-5 text-[#389BB5]' },
+  Network: { Icon: Network, className: 'w-5 h-5 text-[#B4156E]' },
+  Sparkles: { Icon: Sparkles, className: 'w-5 h-5 text-[#FFC412]' },
+  Zap: { Icon: Zap, className: 'w-5 h-5 text-[#FFC412]' },
+  PackagePlus: { Icon: PackagePlus, className: 'w-5 h-5 text-[#A4CE4F]' },
+  Repeat: { Icon: Repeat, className: 'w-5 h-5 text-[#389BB5]' },
+};
 
-  const getServiceIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Globe': return <Globe className="w-5 h-5 text-[#053674] dark:text-[#389BB5]" />;
-      case 'Smartphone': return <Smartphone className="w-5 h-5 text-[#389BB5]" />;
-      case 'Layers': return <Layers className="w-5 h-5 text-[#B4156E]" />;
-      case 'Building2': return <Building2 className="w-5 h-5 text-[#301157] dark:text-[#A4CE4F]" />;
-      case 'Workflow': return <Workflow className="w-5 h-5 text-[#A4CE4F]" />;
-      case 'BarChart3': return <BarChart3 className="w-5 h-5 text-[#389BB5]" />;
-      case 'Network': return <Network className="w-5 h-5 text-[#B4156E]" />;
-      case 'Sparkles': return <Sparkles className="w-5 h-5 text-[#FFC412]" />;
-      case 'Zap': return <Zap className="w-5 h-5 text-[#FFC412]" />;
-      case 'PackagePlus': return <PackagePlus className="w-5 h-5 text-[#A4CE4F]" />;
-      case 'Repeat': return <Repeat className="w-5 h-5 text-[#389BB5]" />;
-      default: return <Code2 className="w-5 h-5 text-[#053674] dark:text-[#389BB5]" />;
-    }
-  };
+const DEFAULT_SERVICE_ICON = { Icon: Code2, className: 'w-5 h-5 text-[#053674] dark:text-[#389BB5]' };
+
+function ServiceIcon({ name }: { name: string }) {
+  const { Icon, className } = SERVICE_ICONS[name] ?? DEFAULT_SERVICE_ICON;
+  return <Icon className={className} />;
+}
+
+export function CustomTechnologyPage() {
+  const { openDemoModal } = useDemoModal();
 
   return (
     <div className="bg-slate-50 dark:bg-[#071326] min-h-screen transition-colors duration-300">
@@ -156,7 +161,7 @@ export function CustomTechnologyPage() {
                 <div className="bg-slate-50 dark:bg-[#0b1c36] rounded-2xl border border-slate-200 dark:border-slate-700/80 p-6 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group h-full">
                   <div>
                     <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#071326] flex items-center justify-center mb-4 border border-slate-200 dark:border-slate-700 shadow-xs">
-                      {getServiceIcon(srv.icon)}
+                      <ServiceIcon name={srv.icon} />
                     </div>
                     <h3 className="text-base font-bold text-[#071326] dark:text-white group-hover:text-[#053674] dark:group-hover:text-[#389BB5] transition-colors">
                       {srv.title}

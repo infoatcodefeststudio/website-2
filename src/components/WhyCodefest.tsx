@@ -3,27 +3,33 @@ import { motion } from 'motion/react';
 import { WHY_CHOOSE_US } from '../data/company';
 import { FadeIn, StaggerContainer, StaggerItem } from './animations/MotionSection';
 import { WiproDotCluster } from './WiproBrandMark';
-import { 
-  Target, 
-  Rocket, 
-  Code2, 
-  Scale, 
-  Eye, 
-  Sparkles 
+import {
+  Target,
+  Rocket,
+  Code2,
+  Scale,
+  Eye,
+  Sparkles,
+  type LucideIcon,
 } from 'lucide-react';
 
+const WHY_ICONS: Record<string, { Icon: LucideIcon; className: string }> = {
+  Target: { Icon: Target, className: 'w-6 h-6 text-[#053674] dark:text-[#389BB5]' },
+  Rocket: { Icon: Rocket, className: 'w-6 h-6 text-[#389BB5]' },
+  Code2: { Icon: Code2, className: 'w-6 h-6 text-[#301157] dark:text-[#A4CE4F]' },
+  Scale: { Icon: Scale, className: 'w-6 h-6 text-[#A4CE4F]' },
+  Eye: { Icon: Eye, className: 'w-6 h-6 text-[#B4156E]' },
+  Sparkles: { Icon: Sparkles, className: 'w-6 h-6 text-[#FFC412]' },
+};
+
+const DEFAULT_WHY_ICON = { Icon: Sparkles, className: 'w-6 h-6 text-[#053674] dark:text-[#389BB5]' };
+
+function WhyIcon({ name }: { name: string }) {
+  const { Icon, className } = WHY_ICONS[name] ?? DEFAULT_WHY_ICON;
+  return <Icon className={className} />;
+}
+
 export function WhyCodefest() {
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Target': return <Target className="w-6 h-6 text-[#053674] dark:text-[#389BB5]" />;
-      case 'Rocket': return <Rocket className="w-6 h-6 text-[#389BB5]" />;
-      case 'Code2': return <Code2 className="w-6 h-6 text-[#301157] dark:text-[#A4CE4F]" />;
-      case 'Scale': return <Scale className="w-6 h-6 text-[#A4CE4F]" />;
-      case 'Eye': return <Eye className="w-6 h-6 text-[#B4156E]" />;
-      case 'Sparkles': return <Sparkles className="w-6 h-6 text-[#FFC412]" />;
-      default: return <Sparkles className="w-6 h-6 text-[#053674] dark:text-[#389BB5]" />;
-    }
-  };
 
   return (
     <section className="py-20 bg-slate-50 dark:bg-[#040c1a] transition-colors duration-300 relative overflow-hidden border-t border-slate-200/80 dark:border-slate-800">
@@ -50,7 +56,7 @@ export function WhyCodefest() {
               >
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-[#071326] group-hover:bg-slate-100 dark:group-hover:bg-[#0e2242] flex items-center justify-center mb-5 transition-colors border border-slate-200/70 dark:border-slate-700">
-                    {getIcon(item.icon)}
+                    <WhyIcon name={item.icon} />
                   </div>
                   <h3 className="text-lg font-bold text-[#071326] dark:text-white group-hover:text-[#053674] dark:group-hover:text-[#389BB5] transition-colors">
                     {item.title}

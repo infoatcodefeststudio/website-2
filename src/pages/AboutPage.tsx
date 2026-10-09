@@ -1,21 +1,19 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { COMPANY_INFO } from '../data/company';
-import { useNavigation } from '../context/NavigationContext';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { WhyCodefest } from '../components/WhyCodefest';
-import { Testimonials } from '../components/Testimonials';
 import { GlobalCtaSection } from '../components/GlobalCtaSection';
+// Testimonials temporarily hidden on About — re-enable when ready:
+// import { Testimonials } from '../components/Testimonials';
 import { FadeIn } from '../components/animations/MotionSection';
 import { WiproDotCluster } from '../components/WiproBrandMark';
-import { 
-  Building2, 
-  Target, 
+import {
+  Target,
   Eye
 } from 'lucide-react';
 
 export function AboutPage() {
-  const { openDemoModal } = useNavigation();
 
   return (
     <div className="bg-slate-50 dark:bg-[#071326] min-h-screen transition-colors duration-300">
@@ -102,13 +100,13 @@ export function AboutPage() {
       {/* Why Choose Codefest */}
       <WhyCodefest />
 
-      {/* Client Success Testimonials Showcase */}
-      <Testimonials 
+      {/* Client Success Testimonials Showcase — temporarily hidden */}
+      {/* <Testimonials
         title="Proven Track Record Across Industries"
         subtitle="Discover how logistics, manufacturing, FMCG, and hospitality leaders realize their ambitions with our enterprise platforms."
         badge="Enterprise Case Studies & Metrics"
         showFilters={true}
-      />
+      /> */}
 
       {/* Global CTA */}
       <GlobalCtaSection />

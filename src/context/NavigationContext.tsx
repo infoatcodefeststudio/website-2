@@ -1,14 +1,26 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  ReactNode,
+} from 'react';
+import { PRODUCT_PAGE_SLUGS } from '../data/products';
 
-export type PageRoute = 
-  | 'home'
-  | 'products'
+export type ProductSlug =
   | 'wms'
   | 'tms'
   | 'gate-yard-management'
   | 'vendor-management'
   | 'hotel-erp'
-  | 'inventory-management'
+  | 'inventory-management';
+
+export type PageRoute =
+  | 'home'
+  | 'products'
+  | ProductSlug
   | 'solutions'
   | 'custom-technology'
   | 'about'
@@ -20,33 +32,47 @@ export type PageRoute =
 interface NavigationContextType {
   currentPage: PageRoute;
   selectedIndustry?: string | null;
+  navigate: (page: PageRoute, params?: { industry?: string; preselectedProduct?: string }) => void;
+}
+
+interface DemoModalContextType {
   demoModalOpen: boolean;
   preselectedProduct: string;
-  navigate: (page: PageRoute, params?: { industry?: string; preselectedProduct?: string }) => void;
   openDemoModal: (product?: string) => void;
   closeDemoModal: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
+const DemoModalContext = createContext<DemoModalContextType | undefined>(undefined);
+
+export function isProductSlug(page: string): page is ProductSlug {
+  return PRODUCT_PAGE_SLUGS.has(page);
+}
+
+export function getHashForPage(page: PageRoute): string {
+  if (page === 'home') return '#/';
+  if (isProductSlug(page)) return `#/products/${page}`;
+  return `#/${page}`;
+}
+
+function parseHashPage(): PageRoute {
+  const hash = window.location.hash.replace('#/', '').replace('#', '');
+  if (!hash) return 'home';
+  if (hash.startsWith('products/')) {
+    return hash.replace('products/', '') as PageRoute;
+  }
+  return (hash as PageRoute) || 'home';
+}
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const [currentPage, setCurrentPage] = useState<PageRoute>('home');
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
-  const [demoModalOpen, setDemoModalOpen] = useState<boolean>(false);
-  const [preselectedProduct, setPreselectedProduct] = useState<string>('Warehouse Management System');
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [preselectedProduct, setPreselectedProduct] = useState('Warehouse Management System');
 
-  // Handle URL hash changes
   useEffect(() => {
     const handleLocationChange = () => {
-      const hash = window.location.hash.replace('#/', '').replace('#', '');
-      if (!hash || hash === '') {
-        setCurrentPage('home');
-      } else if (hash.startsWith('products/')) {
-        const productSlug = hash.replace('products/', '') as PageRoute;
-        setCurrentPage(productSlug);
-      } else {
-        setCurrentPage((hash as PageRoute) || 'home');
-      }
+      setCurrentPage(parseHashPage());
     };
 
     handleLocationChange();
@@ -54,7 +80,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('hashchange', handleLocationChange);
   }, []);
 
-  const navigate = (page: PageRoute, params?: { industry?: string; preselectedProduct?: string }) => {
+  const navigate = useCallback((page: PageRoute, params?: { industry?: string; preselectedProduct?: string }) => {
     if (params?.industry) {
       setSelectedIndustry(params.industry);
     }
@@ -64,43 +90,45 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 
     setCurrentPage(page);
 
-    let targetHash = '#/';
-    if (page === 'home') {
-      targetHash = '#/';
-    } else if (['wms', 'tms', 'gate-yard-management', 'vendor-management', 'hotel-erp', 'inventory-management'].includes(page)) {
-      targetHash = `#/products/${page}`;
-    } else {
-      targetHash = `#/${page}`;
-    }
-
-    window.history.pushState(null, '', targetHash);
+    window.history.pushState(null, '', getHashForPage(page));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, []);
 
-  const openDemoModal = (product?: string) => {
+  const openDemoModal = useCallback((product?: string) => {
     if (product) {
       setPreselectedProduct(product);
     }
     setDemoModalOpen(true);
-  };
+  }, []);
 
-  const closeDemoModal = () => {
+  const closeDemoModal = useCallback(() => {
     setDemoModalOpen(false);
-  };
+  }, []);
+
+  const navigationValue = useMemo<NavigationContextType>(
+    () => ({
+      currentPage,
+      selectedIndustry,
+      navigate,
+    }),
+    [currentPage, selectedIndustry, navigate]
+  );
+
+  const demoModalValue = useMemo<DemoModalContextType>(
+    () => ({
+      demoModalOpen,
+      preselectedProduct,
+      openDemoModal,
+      closeDemoModal,
+    }),
+    [demoModalOpen, preselectedProduct, openDemoModal, closeDemoModal]
+  );
 
   return (
-    <NavigationContext.Provider
-      value={{
-        currentPage,
-        selectedIndustry,
-        demoModalOpen,
-        preselectedProduct,
-        navigate,
-        openDemoModal,
-        closeDemoModal
-      }}
-    >
-      {children}
+    <NavigationContext.Provider value={navigationValue}>
+      <DemoModalContext.Provider value={demoModalValue}>
+        {children}
+      </DemoModalContext.Provider>
     </NavigationContext.Provider>
   );
 }
@@ -109,6 +137,14 @@ export function useNavigation() {
   const context = useContext(NavigationContext);
   if (!context) {
     throw new Error('useNavigation must be used within a NavigationProvider');
+  }
+  return context;
+}
+
+export function useDemoModal() {
+  const context = useContext(DemoModalContext);
+  if (!context) {
+    throw new Error('useDemoModal must be used within a NavigationProvider');
   }
   return context;
 }

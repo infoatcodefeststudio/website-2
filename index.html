@@ -1,25 +1,54 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en-IN" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Codefest Studio | Technology Solutions & Enterprise Software Products</title>
     <meta name="description" content="Codefest Studio provides customised technology solutions and ready-to-deploy enterprise products including Warehouse Management, Transport Management, Gate & Yard Management, Vendor Management, Hotel ERP and Inventory Management." />
-    
-    <!-- Open Graph / Facebook -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="author" content="Codefest Studio" />
+    <meta name="publisher" content="Codefest Studio" />
+    <meta name="application-name" content="Codefest Studio" />
+    <meta name="theme-color" content="#053674" />
+    <meta name="msapplication-TileColor" content="#053674" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-title" content="Codefest Studio" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="keywords" content="Codefest Studio, warehouse management system, transport management system, yard management, vendor management, hotel ERP, inventory management, enterprise software, custom technology" />
+
+    <link rel="canonical" href="https://codefeststudio.com/" />
+    <link rel="alternate" hreflang="en-IN" href="https://codefeststudio.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://codefeststudio.com/" />
+
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#053674" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:site_name" content="Codefest Studio" />
     <meta property="og:url" content="https://codefeststudio.com/" />
     <meta property="og:title" content="Codefest Studio | Technology Solutions & Enterprise Software Products" />
     <meta property="og:description" content="Technology Solutions. Product Management. Business Transformation. Ready-to-deploy enterprise products and custom software solutions." />
-    <meta property="og:image" content="https://picsum.photos/1200/630" />
+    <meta property="og:image" content="https://codefeststudio.com/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Codefest Studio — Technology Solutions and Enterprise Software Products" />
 
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Codefest Studio | Technology Solutions & Enterprise Software Products" />
     <meta name="twitter:description" content="Technology Solutions. Product Management. Business Transformation. Ready-to-deploy enterprise products and custom software solutions." />
-    <meta name="twitter:image" content="https://picsum.photos/1200/630" />
+    <meta name="twitter:image" content="https://codefeststudio.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Codefest Studio — Technology Solutions and Enterprise Software Products" />
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -43,25 +72,46 @@
       })();
     </script>
 
-    <!-- Structured Data JSON-LD -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="seo-jsonld">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Codefest Studio",
-      "url": "https://codefeststudio.com",
-      "logo": "https://codefeststudio.com/logo.png",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "info@coldfeststudio.com",
-        "contactType": "customer service"
-      },
-      "sameAs": [],
-      "description": "Codefest Studio builds powerful technology products and customised digital solutions that help businesses automate operations, improve visibility and scale efficiently."
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://codefeststudio.com/#organization",
+          "name": "Codefest Studio",
+          "url": "https://codefeststudio.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://codefeststudio.com/logo.png",
+            "width": 512,
+            "height": 512
+          },
+          "image": "https://codefeststudio.com/og-image.png",
+          "email": "info@codefeststudio.com",
+          "description": "Codefest Studio is a technology solutions and product management company that provides customised technology solutions for businesses. The company also offers ready-to-deploy enterprise products for Warehouse Management, Transport Management, Yard/Gate Management, Vendor Management, Hotel ERP and Inventory Management.",
+          "slogan": "Technology Solutions. Product Management. Business Transformation.",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@codefeststudio.com",
+            "contactType": "customer service",
+            "areaServed": "IN",
+            "availableLanguage": ["en", "hi"]
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://codefeststudio.com/#website",
+          "url": "https://codefeststudio.com",
+          "name": "Codefest Studio",
+          "inLanguage": "en-IN",
+          "publisher": { "@id": "https://codefeststudio.com/#organization" }
+        }
+      ]
     }
     </script>
   </head>
-  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-indigo-500 selection:text-white min-h-screen">
+  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-[#053674] selection:text-white min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

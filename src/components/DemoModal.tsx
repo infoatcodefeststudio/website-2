@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useNavigation } from '../context/NavigationContext';
+import { useDemoModal } from '../context/NavigationContext';
 import { useTheme } from '../context/ThemeContext';
 import { COMPANY_INFO } from '../data/company';
+import { submitLead } from '../lib/submit-lead';
 import { WiproDotCluster } from './WiproBrandMark';
 import { 
   X, 
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export function DemoModal() {
-  const { demoModalOpen, closeDemoModal, preselectedProduct } = useNavigation();
+  const { demoModalOpen, closeDemoModal, preselectedProduct } = useDemoModal();
   const { isDark } = useTheme();
 
   const [fullName, setFullName] = useState('');
@@ -32,6 +33,7 @@ export function DemoModal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [refId, setRefId] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     if (preselectedProduct) {
@@ -39,20 +41,35 @@ export function DemoModal() {
     }
   }, [preselectedProduct]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
     setIsSubmitting(true);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const ticket = await submitLead({
+        source: 'demo',
+        fullName,
+        companyName,
+        email,
+        phone,
+        designation,
+        productSlug: product,
+        businessType,
+        numberOfLocations: locations,
+        message: message.trim() || `Consultation request for ${product}`,
+      });
+      setRefId(ticket);
       setIsSubmitted(true);
-      const randomRef = 'CONSULT-' + Math.floor(100000 + Math.random() * 900000);
-      setRefId(randomRef);
-    }, 800);
+    } catch {
+      setSubmitError('Failed to send your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setIsSubmitted(false);
+    setSubmitError('');
     closeDemoModal();
   };
 
@@ -188,7 +205,7 @@ export function DemoModal() {
                             required
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            placeholder="e.g. Rajesh Sharma"
+                            placeholder="Your full name"
                             className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-[#389BB5] ${
                               isDark 
                                 ? 'bg-[#071326] border border-slate-700 text-white placeholder-slate-500 focus:bg-[#071326]' 
@@ -210,7 +227,7 @@ export function DemoModal() {
                             required
                             value={companyName}
                             onChange={(e) => setCompanyName(e.target.value)}
-                            placeholder="e.g. Apex Global Logistics"
+                            placeholder="Company or Organization"
                             className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-[#389BB5] ${
                               isDark 
                                 ? 'bg-[#071326] border border-slate-700 text-white placeholder-slate-500 focus:bg-[#071326]' 
@@ -232,7 +249,7 @@ export function DemoModal() {
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="e.g. rajesh@apexlogistics.com"
+                            placeholder="name@company.com"
                             className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-[#389BB5] ${
                               isDark 
                                 ? 'bg-[#071326] border border-slate-700 text-white placeholder-slate-500 focus:bg-[#071326]' 
@@ -254,7 +271,7 @@ export function DemoModal() {
                             required
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            placeholder="e.g. +91 98765 43210"
+                            placeholder="Your phone number"
                             className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-[#389BB5] ${
                               isDark 
                                 ? 'bg-[#071326] border border-slate-700 text-white placeholder-slate-500 focus:bg-[#071326]' 
@@ -276,7 +293,7 @@ export function DemoModal() {
                             required
                             value={designation}
                             onChange={(e) => setDesignation(e.target.value)}
-                            placeholder="e.g. VP Operations / CTO"
+                            placeholder="Your role or title"
                             className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-[#389BB5] ${
                               isDark 
                                 ? 'bg-[#071326] border border-slate-700 text-white placeholder-slate-500 focus:bg-[#071326]' 
@@ -382,6 +399,10 @@ export function DemoModal() {
                         {COMPANY_INFO.email}
                       </a>
                     </div>
+
+                    {submitError ? (
+                      <p className="text-xs text-rose-500 font-semibold">{submitError}</p>
+                    ) : null}
 
                     {/* Submit Button */}
                     <div className="pt-2">

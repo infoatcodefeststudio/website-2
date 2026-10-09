@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { useNavigation } from '../context/NavigationContext';
+import { useDemoModal, useNavigation } from '../context/NavigationContext';
 import { COMPANY_INFO } from '../data/company';
 import { FadeIn } from './animations/MotionSection';
 import { WiproDotCluster } from './WiproBrandMark';
 import { CalendarCheck, ArrowRight, ShieldCheck, Mail, Globe2 } from 'lucide-react';
 
 export function GlobalCtaSection() {
-  const { navigate, openDemoModal } = useNavigation();
+  const { navigate } = useNavigation();
+  const { openDemoModal } = useDemoModal();
 
   return (
     <section className="py-20 bg-[#071326] text-white relative overflow-hidden">

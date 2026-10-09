@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'motion/react';
 import { Product } from '../data/products';
-import { useNavigation, PageRoute } from '../context/NavigationContext';
+import { useDemoModal, useNavigation, PageRoute } from '../context/NavigationContext';
 import {
   Warehouse,
   Truck,
@@ -12,22 +12,24 @@ import {
   ArrowRight,
   CalendarCheck,
   CheckCircle2,
+  type LucideIcon,
 } from 'lucide-react';
 
-export function ProductCard({ product }: { product: Product }) {
-  const { navigate, openDemoModal } = useNavigation();
+const PRODUCT_ICONS: Record<string, { Icon: LucideIcon; className: string }> = {
+  Warehouse: { Icon: Warehouse, className: 'w-6 h-6 text-[#053674] dark:text-[#389BB5]' },
+  Truck: { Icon: Truck, className: 'w-6 h-6 text-[#389BB5]' },
+  ShieldCheck: { Icon: ShieldCheck, className: 'w-6 h-6 text-[#A4CE4F]' },
+  Users: { Icon: Users, className: 'w-6 h-6 text-[#B4156E]' },
+  Hotel: { Icon: Hotel, className: 'w-6 h-6 text-[#FFC412]' },
+  Boxes: { Icon: Boxes, className: 'w-6 h-6 text-[#301157] dark:text-[#A4CE4F]' },
+};
 
-  const getProductIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Warehouse': return <Warehouse className="w-6 h-6 text-[#053674] dark:text-[#389BB5]" />;
-      case 'Truck': return <Truck className="w-6 h-6 text-[#389BB5]" />;
-      case 'ShieldCheck': return <ShieldCheck className="w-6 h-6 text-[#A4CE4F]" />;
-      case 'Users': return <Users className="w-6 h-6 text-[#B4156E]" />;
-      case 'Hotel': return <Hotel className="w-6 h-6 text-[#FFC412]" />;
-      case 'Boxes': return <Boxes className="w-6 h-6 text-[#301157] dark:text-[#A4CE4F]" />;
-      default: return <Boxes className="w-6 h-6 text-[#053674] dark:text-[#389BB5]" />;
-    }
-  };
+const DEFAULT_PRODUCT_ICON = { Icon: Boxes, className: 'w-6 h-6 text-[#053674] dark:text-[#389BB5]' };
+
+export const ProductCard = memo(function ProductCard({ product }: { product: Product }) {
+  const { navigate } = useNavigation();
+  const { openDemoModal } = useDemoModal();
+  const { Icon, className } = PRODUCT_ICONS[product.iconName] ?? DEFAULT_PRODUCT_ICON;
 
   return (
     <motion.div
@@ -39,7 +41,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div>
         <div className="flex items-start gap-4 mb-4">
           <div className="w-12 h-12 shrink-0 rounded-xl bg-slate-50 dark:bg-[#071326] group-hover:bg-slate-100 dark:group-hover:bg-[#0e2242] flex items-center justify-center shadow-sm border border-slate-200/80 dark:border-slate-700 transition-colors">
-            {getProductIcon(product.iconName)}
+            <Icon className={className} />
           </div>
           <div className="min-w-0">
             <div className="text-[11px] font-bold text-[#389BB5] uppercase tracking-wider">
@@ -93,6 +95,6 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
     </motion.div>
   );
-}
+});
 
 export default ProductCard;
