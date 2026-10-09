@@ -13,11 +13,16 @@ export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
 export const THEME_COLOR = '#053674';
 
+export const INDEX_ROBOTS =
+  'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+export const NOINDEX_ROBOTS = 'noindex, follow';
+
 export interface SeoRecord {
   title: string;
   description: string;
   canonical: string;
   ogType: 'website' | 'article';
+  robots: string;
 }
 
 function urlFor(page: PageRoute): string {
@@ -25,7 +30,7 @@ function urlFor(page: PageRoute): string {
   return hash === '#/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}/${hash}`;
 }
 
-const PAGE_SEO: Record<Exclude<PageRoute, ProductSlug>, Omit<SeoRecord, 'canonical' | 'ogType'>> = {
+const PAGE_SEO: Record<Exclude<PageRoute, ProductSlug>, Omit<SeoRecord, 'canonical' | 'ogType' | 'robots'>> = {
   home: {
     title: DEFAULT_SEO_TITLE,
     description: DEFAULT_SEO_DESCRIPTION,
@@ -67,6 +72,11 @@ const PAGE_SEO: Record<Exclude<PageRoute, ProductSlug>, Omit<SeoRecord, 'canonic
     title: 'Terms & Conditions | Codefest Studio',
     description: 'Terms of use for the Codefest Studio website, product information and demonstration requests.',
   },
+  'not-found': {
+    title: 'Page Not Found | Codefest Studio',
+    description:
+      'This page is not available. Explore Codefest Studio enterprise products, industry solutions, custom technology, or contact the team to continue.',
+  },
 };
 
 export function getSeoForPage(page: PageRoute): SeoRecord {
@@ -78,6 +88,7 @@ export function getSeoForPage(page: PageRoute): SeoRecord {
         description: product.seoDescription,
         canonical: urlFor(page),
         ogType: 'website',
+        robots: INDEX_ROBOTS,
       };
     }
   }
@@ -87,6 +98,7 @@ export function getSeoForPage(page: PageRoute): SeoRecord {
     ...fallback,
     canonical: urlFor(page),
     ogType: 'website',
+    robots: page === 'not-found' ? NOINDEX_ROBOTS : INDEX_ROBOTS,
   };
 }
 
@@ -153,6 +165,7 @@ function breadcrumbFor(page: PageRoute) {
     'book-demo': 'Book a Demo',
     privacy: 'Privacy Policy',
     terms: 'Terms & Conditions',
+    'not-found': 'Page Not Found',
   };
 
   items.push({ name: labels[page] ?? page, item: urlFor(page) });

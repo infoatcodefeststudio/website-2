@@ -50,6 +50,8 @@ export function SeoHead() {
 
     document.title = seo.title;
     upsertMeta('name', 'description', seo.description);
+    upsertMeta('name', 'robots', seo.robots);
+    upsertMeta('name', 'googlebot', seo.robots.includes('noindex') ? 'noindex, follow' : 'index, follow');
     upsertMeta('name', 'twitter:title', seo.title);
     upsertMeta('name', 'twitter:description', seo.description);
     upsertMeta('name', 'twitter:image', image);

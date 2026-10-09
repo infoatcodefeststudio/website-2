@@ -17,6 +17,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const BookDemoPage = lazy(() => import('./pages/BookDemoPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const DemoModal = lazy(() => import('./components/DemoModal'));
 
 const PRODUCT_ROUTES = new Set<PageRoute>([
@@ -69,8 +70,10 @@ function renderCurrentPage(currentPage: PageRoute) {
       return <PrivacyPolicyPage />;
     case 'terms':
       return <TermsPage />;
+    case 'not-found':
+      return <NotFoundPage />;
     default:
-      return <HomePage />;
+      return <NotFoundPage />;
   }
 }
 

@@ -27,7 +27,20 @@ export type PageRoute =
   | 'contact'
   | 'book-demo'
   | 'privacy'
-  | 'terms';
+  | 'terms'
+  | 'not-found';
+
+const STATIC_PAGE_ROUTES = new Set<string>([
+  'home',
+  'products',
+  'solutions',
+  'custom-technology',
+  'about',
+  'contact',
+  'book-demo',
+  'privacy',
+  'terms',
+]);
 
 interface NavigationContextType {
   currentPage: PageRoute;
@@ -51,17 +64,30 @@ export function isProductSlug(page: string): page is ProductSlug {
 
 export function getHashForPage(page: PageRoute): string {
   if (page === 'home') return '#/';
+  if (page === 'not-found') return '#/404';
   if (isProductSlug(page)) return `#/products/${page}`;
   return `#/${page}`;
 }
 
-function parseHashPage(): PageRoute {
-  const hash = window.location.hash.replace('#/', '').replace('#', '');
-  if (!hash) return 'home';
-  if (hash.startsWith('products/')) {
-    return hash.replace('products/', '') as PageRoute;
+export function parseHashPage(): PageRoute {
+  const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (pathname !== '/' && pathname !== '/index.html') {
+    return 'not-found';
   }
-  return (hash as PageRoute) || 'home';
+
+  const raw = window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '');
+  if (!raw) return 'home';
+  if (raw === '404' || raw === 'not-found') return 'not-found';
+
+  if (raw.startsWith('products/')) {
+    const slug = raw.slice('products/'.length).split('/')[0];
+    return isProductSlug(slug) ? slug : 'not-found';
+  }
+
+  if (raw === 'solutions' || raw.startsWith('solutions/')) return 'solutions';
+  if (isProductSlug(raw)) return raw;
+  if (STATIC_PAGE_ROUTES.has(raw)) return raw as PageRoute;
+  return 'not-found';
 }
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
@@ -77,7 +103,11 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 
     handleLocationChange();
     window.addEventListener('hashchange', handleLocationChange);
-    return () => window.removeEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handleLocationChange);
+    };
   }, []);
 
   const navigate = useCallback((page: PageRoute, params?: { industry?: string; preselectedProduct?: string }) => {
@@ -90,7 +120,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 
     setCurrentPage(page);
 
-    window.history.pushState(null, '', getHashForPage(page));
+    window.history.pushState(null, '', `/${getHashForPage(page)}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
