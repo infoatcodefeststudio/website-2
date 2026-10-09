@@ -3,7 +3,16 @@ import { processLeadSubmission, type LeadEnv } from './process-lead';
 
 export type { LeadEnv };
 
-async function readJsonBody(req: IncomingMessage): Promise<unknown> {
+type VercelIncoming = IncomingMessage & { body?: unknown };
+
+async function readJsonBody(req: VercelIncoming): Promise<unknown> {
+  if (req.body !== undefined && req.body !== null && req.body !== '') {
+    if (typeof req.body === 'string') {
+      return JSON.parse(req.body) as unknown;
+    }
+    return req.body;
+  }
+
   const chunks: Buffer[] = [];
   for await (const chunk of req) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -34,9 +43,9 @@ export async function handleLeadRequest(
       const message =
         error instanceof Error ? error.message : 'Failed to send notification';
       console.error('[api/leads]', message);
-      sendJson(res, 500, {
+      sendJson(res, 400, {
         ok: false,
-        message: 'Failed to send your message. Please try again.',
+        message: 'Invalid JSON',
       });
       return;
     }
